@@ -1,0 +1,1381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Projeto_Data7 xmlns="http://www.se7esistemas.com.br/Data7DevStudio" Versão="1.0">
+  <Nome>Principal</Nome>
+  <Data>27/05/2019 09:03:41</Data>
+  <Codigo>Dim vLinhaEdicao           As Integer
+Dim vCodEmpresa            As Integer = Data7.CodEmpresa()
+Dim vCodFilial             As Integer = Data7.CodFilial()
+Dim vNomeUsuario           As String = Data7.NomeUsuario()
+Dim vNomeEstacao           As String = Environment.MachineName
+
+Const vCaractereMarcado    As Char = "√"
+Const Col_Selecao          As Integer = 0
+Const Col_Item             As Integer = 1
+Const Col_CodigoInterno    As Integer = 2
+Const Col_CodigoOriginal   As Integer = 3
+Const Col_Descricao        As Integer = 4
+Const Col_Quantidade       As Integer = 5
+Const Col_UM               As Integer = 6
+Const Col_PrecoUnitario    As Integer = 7
+Const Col_PrecoTotal       As Integer = 8
+Const Col_TipoProduto      As Integer = 9
+
+EventosInicializar()
+FormularioPrincipal.Inicializar()
+EventosFinalizar()
+FormularioPrincipal.Finalizar()</Codigo>
+  <Aberto>true</Aberto>
+  <OrdemAbertura>0</OrdemAbertura>
+  <ItemAberto>3</ItemAberto>
+  <Linguagem>Basic</Linguagem>
+  <Engine>PaxCompiler</Engine>
+  <Modulos>
+    <FormularioPrincipal>
+      <Codigo>Imports Forms
+Namespace FormularioPrincipal
+
+Dim TelaPrincipal                   As FormButtons
+Dim PainelParametros                As Panel
+Dim LabelTituloPainelParametros     As StaticText
+Dim LabelMontadora                  As StaticText
+Dim EditMontadora                   As SearchTextBox
+Dim MemoMontadora                   As MemoTextBox
+Dim LabelModelo                     As StaticText
+Dim EditModelo                      As SearchTextBox
+Dim MemoModelo                      As MemoTextBox
+Dim LabelGrupoManutencao            As StaticText
+Dim EditGrupoManutencao             As SearchTextBox
+Dim MemoGrupoManutencao             As MemoTextBox
+Dim LabelRefMotor                   As StaticText
+Dim EditRefMotor                    As TextBox
+Dim LabelProduto                    As StaticText
+Dim EditProduto                     As SearchTextBox
+Dim MemoProduto                     As MemoTextBox
+Dim ButSelecionar                   As CommandButton
+Dim ButLimpar                       As CommandButton
+Dim ButIncluir                      As CommandButton
+Dim ButAlterar                      As CommandButton
+Dim ButExcluir                      As CommandButton
+Dim Grade                           As Grid
+Dim LabelQuantidade                 As StaticText
+Dim EditQuantidade                  As ValueTextBox
+Dim LabelPrecoUnitario              As StaticText
+Dim EditPrecoUnitario               As ValueTextBox
+Dim LabelPrecoTotal                 As StaticText
+Dim EditPrecoTotal                  As ValueTextBox
+Dim LabelQuantidadeItens            As StaticText
+Dim LabelContador                   As StaticText
+Dim LabelCliente                    As StaticText
+Dim MemoCliente                     As MemoTextBox
+Dim EditCliente                     As SearchTextBox
+Dim LabelCondicaoPagamento          As StaticText
+Dim MemoCondicaoPagamento           As MemoTextBox
+Dim EditCondicaoPagamento           As SearchTextBox
+Dim LabelVendedor                   As StaticText
+Dim MemoVendedor                    As MemoTextBox
+Dim EditVendedor                    As SearchTextBox
+Dim LabelValorTotal                 As StaticText
+Dim LabelEditValorTotal             As StaticText
+Dim LabelValorTotalMarcado          As StaticText
+Dim LabelEditValorTotalMarcado      As StaticText
+Dim LabelQuantidadeItensMarcados    As StaticText
+Dim LabelContadorMarcados           As StaticText
+Dim ControleAbas                    As PageControl
+Dim AbaManutencao                   As TabSheet
+Dim AbaDadosAdicionais              As TabSheet
+Dim LabelObservacao                 As StaticText
+Dim MemoObservacao                  As MemoTextBox
+Dim LabelDadosAdicionais            As StaticText
+Dim MemoDadosAdicionais             As MemoTextBox
+Dim LabelMensagem                   As StaticText
+Dim MemoMensagem                    As MemoTextBox
+Dim EditMensagem                    As SearchTextBox
+
+Sub Inicializar()
+    TelaPrincipal = New FormButtons()
+    TelaPrincipal.Caption = "Gestor de Serviços"
+    TelaPrincipal.Width = 900
+    TelaPrincipal.Height = 680
+    TelaPrincipal.Font.Size = 8
+    TelaPrincipal.Font.Name = "Tahoma"
+    TelaPrincipal.Font.Color = RGB(0,0,0)
+
+    PainelParametros = New Forms.Panel(TelaPrincipal)
+    PainelParametros.Top = 50
+    PainelParametros.Width = TelaPrincipal.Width - 16
+    PainelParametros.Height = 114
+    PainelParametros.Left = 5
+
+    LabelTituloPainelParametros = New Forms.StaticText(PainelParametros)
+    LabelTituloPainelParametros.Text = " Parâmetros"
+    LabelTituloPainelParametros.Alignment = taLeftJustify
+    LabelTituloPainelParametros.Transparent = False
+    LabelTituloPainelParametros.Color = RGB(203, 203, 189)
+    LabelTituloPainelParametros.Width = 62
+    LabelTituloPainelParametros.Height = 15
+
+    LabelMontadora = New Forms.StaticText(PainelParametros)
+    LabelMontadora.Alignment = taRightJustify
+    LabelMontadora.Text = "Montadora:"
+    LabelMontadora.Top = 30
+    LabelMontadora.Left = 5
+    LabelMontadora.AutoSize = False
+    LabelMontadora.Width = 110
+
+    MemoMontadora = New Forms.MemoTextBox(PainelParametros)
+    MemoMontadora.Width = 222
+
+    EditMontadora = New Forms.SearchTextBox(PainelParametros)
+    EditMontadora.Top = LabelMontadora.Top - 3
+    EditMontadora.Left = LabelMontadora.Left + LabelMontadora.Width + 5
+    EditMontadora.Width = 70
+    EditMontadora.EditorDescricao = MemoMontadora
+    EditMontadora.CodPesquisa = 1012
+    EditMontadora.OnExit = Eventos.OnExitPesquisaMontadora
+
+    LabelModelo = New Forms.StaticText(PainelParametros)
+    LabelModelo.Text = "Modelo:"
+    LabelModelo.Top = LabelMontadora.Top
+    LabelModelo.Left = 435
+    LabelModelo.Font.Color = RGB(0,0,255)
+    LabelModelo.Width = 100
+    LabelModelo.Alignment = taRightJustify
+
+    MemoModelo = New Forms.MemoTextBox(PainelParametros)
+    MemoModelo.Width = 265
+
+    EditModelo = New Forms.SearchTextBox(PainelParametros)
+    EditModelo.Top = LabelModelo.Top - 3
+    EditModelo.Left = LabelModelo.Left + 107
+    EditModelo.Width = 70
+    EditModelo.EditorDescricao = MemoModelo
+    EditModelo.CodPesquisa = 1013
+
+    LabelGrupoManutencao = New Forms.StaticText(PainelParametros)
+    LabelGrupoManutencao.Text = "Grupo de Manutenção:"
+    LabelGrupoManutencao.Alignment = taRightJustify
+    LabelGrupoManutencao.Top = LabelModelo.Top + 27
+    LabelGrupoManutencao.Left = LabelMontadora.Left
+    LabelGrupoManutencao.AutoSize = False
+    LabelGrupoManutencao.Width = 110
+
+    MemoGrupoManutencao = New Forms.MemoTextBox(PainelParametros)
+    MemoGrupoManutencao.Width = MemoMontadora.Width
+
+    EditGrupoManutencao = New Forms.SearchTextBox(PainelParametros)
+    EditGrupoManutencao.Top = LabelGrupoManutencao.Top - 3
+    EditGrupoManutencao.Left = LabelGrupoManutencao.Left + 115
+    EditGrupoManutencao.Width = 70
+    EditGrupoManutencao.EditorDescricao = MemoGrupoManutencao
+    EditGrupoManutencao.CodPesquisa = 1014
+
+    LabelRefMotor = New Forms.StaticText(PainelParametros)
+    LabelRefMotor.Text = "Ref. do Motor:"
+    LabelRefMotor.Top = LabelGrupoManutencao.Top
+    LabelRefMotor.Left = LabelModelo.Left
+    LabelRefMotor.Width = 100
+    LabelRefMotor.Alignment = taRightJustify
+
+    EditRefMotor = New Forms.TextBox(PainelParametros)
+    EditRefMotor.Top = LabelRefMotor.Top - 3
+    EditRefMotor.Left = LabelRefMotor.Left + 107
+    EditRefMotor.Width = 335
+
+    ButSelecionar = New Forms.CommandButton(PainelParametros)
+    ButSelecionar.Text = "&amp;Selecionar"
+    ButSelecionar.Width = 70
+    ButSelecionar.Top = LabelGrupoManutencao.Top + 24
+    ButSelecionar.Left = PainelParametros.Width - 153
+    ButSelecionar.OnClick = Eventos.OnClickBotaoSelecionar
+
+    ButLimpar = New Forms.CommandButton(PainelParametros)
+    ButLimpar.Text = "&amp;Limpar"
+    ButLimpar.Width = ButSelecionar.Width
+    ButLimpar.Top = ButSelecionar.Top
+    ButLimpar.Left = ButSelecionar.Left + ButSelecionar.Width + 5
+    ButLimpar.OnClick = Eventos.LimparTela
+
+    ControleAbas = New PageControl(TelaPrincipal)
+    ControleAbas.Top = PainelParametros.Height + 55
+    ControleAbas.Left = PainelParametros.Left
+    ControleAbas.Width = PainelParametros.Width
+    ControleAbas.Height = TelaPrincipal.Height - PainelParametros.Height - 125
+
+    AbaManutencao = New TabSheet(ControleAbas)
+    AbaManutencao.Text = "&amp;Manutenção"
+    ControleAbas.ActivePage = AbaManutencao
+
+    LabelProduto = New Forms.StaticText(AbaManutencao)
+    LabelProduto.Text = "Produto:"
+    LabelProduto.Top = 10
+    LabelProduto.Left = 5
+
+    MemoProduto = New Forms.MemoTextBox(AbaManutencao)
+    MemoProduto.Width = 290
+
+    EditProduto = New Forms.SearchTextBox(AbaManutencao)
+    EditProduto.Top = LabelProduto.Top - 3
+    EditProduto.Left = LabelProduto.Left + LabelProduto.Width + 5
+    EditProduto.Width = 70
+    EditProduto.EditorDescricao = MemoProduto
+    EditProduto.CodPesquisa = 45
+    EditProduto.OnExit = Eventos.OnExitPesquisaProduto
+
+    LabelQuantidade = New Forms.StaticText(AbaManutencao)
+    LabelQuantidade.Text = "Quantidade:"
+    LabelQuantidade.Top = LabelProduto.Top
+    LabelQuantidade.Left = ControleAbas.Width - 405
+
+    EditQuantidade = New Forms.ValueTextBox(AbaManutencao)
+    EditQuantidade.Top = LabelQuantidade.Top - 3
+    EditQuantidade.Left = LabelQuantidade.Left + LabelQuantidade.Width + 5
+    EditQuantidade.Width = 70
+    EditQuantidade.OnExit = Eventos.CalculaPrecoTotalProduto
+
+    LabelPrecoUnitario = New Forms.StaticText(AbaManutencao)
+    LabelPrecoUnitario.Text = "Vlr. Unit.:"
+    LabelPrecoUnitario.Top = LabelQuantidade.Top
+    LabelPrecoUnitario.Left = LabelQuantidade.Left + 143
+
+    EditPrecoUnitario = New Forms.ValueTextBox(AbaManutencao)
+    EditPrecoUnitario.Top = LabelPrecoUnitario.Top - 3
+    EditPrecoUnitario.Left = LabelPrecoUnitario.Left + LabelPrecoUnitario.Width + 6
+    EditPrecoUnitario.Width = 70
+    EditPrecoUnitario.OnExit = Eventos.CalculaPrecoTotalProduto
+
+    LabelPrecoTotal = New Forms.StaticText(AbaManutencao)
+    LabelPrecoTotal.Text = "Vlr. Total:"
+    LabelPrecoTotal.Top = LabelPrecoUnitario.Top
+    LabelPrecoTotal.Left = LabelPrecoUnitario.Left + 130
+
+    EditPrecoTotal = New Forms.ValueTextBox(AbaManutencao)
+    EditPrecoTotal.Top = LabelPrecoTotal.Top - 3
+    EditPrecoTotal.Left = LabelPrecoTotal.Left + LabelPrecoTotal.Width + 6
+    EditPrecoTotal.Width = 70
+    EditPrecoTotal.ReadOnly = True
+    EditPrecoTotal.TabStop = False
+
+    ButIncluir = New Forms.CommandButton(AbaManutencao)
+    ButIncluir.Text = "&amp;Incluir"
+    ButIncluir.Width = 70
+    ButIncluir.Top = LabelPrecoTotal.Top + 25
+    ButIncluir.Left = ControleAbas.Width - 230
+    ButIncluir.OnClick = Eventos.OnClickIncluir
+
+    ButAlterar = New Forms.CommandButton(AbaManutencao)
+    ButAlterar.Text = "&amp;Alterar"
+    ButAlterar.Width = ButIncluir.Width
+    ButAlterar.Top = ButIncluir.Top
+    ButAlterar.Left = ButIncluir.Left + ButAlterar.Width + 5
+    ButAlterar.OnClick = Eventos.AlterarProdutosDaGrade
+
+    ButExcluir = New Forms.CommandButton(AbaManutencao)
+    ButExcluir.Text = "&amp;Excluir"
+    ButExcluir.Width = ButAlterar.Width
+    ButExcluir.Top = ButAlterar.Top
+    ButExcluir.Left = ButAlterar.Left + ButAlterar.Width + 5
+    ButExcluir.OnClick = Eventos.RemoveProdutosGrade
+
+    Grade = New Forms.Grid(AbaManutencao)
+    Grade.Top = ButExcluir.Top + 32
+    Grade.Width = 870
+    Grade.Height = 345
+    Grade.Left = 5
+    Grade.ColCount = 9
+    Grade.RowCount = 2
+    Grade.GridOptions.FixedVerLine = False
+    Grade.GridOptions.FixedHorzLine = True
+    Grade.GridOptions.VerLine = True 'Linhas verticais
+    Grade.GridOptions.HorzLine = True 'Linhas horizontais
+    Grade.GridOptions.RowSizing = False 'Movimentar o tamanho da linhas
+    Grade.GridOptions.ColSizing = True 'Movimentar o tamanho das colunas
+    Grade.GridOptions.RowMoving = True 'Movimentar as linhas
+    Grade.GridOptions.ColMoving = False 'Movimentar as colunas
+    Grade.GridOptions.RowSelect = True 'Selecionar linha inteira
+    Grade.GridOptions.FixedColClick = False
+    Grade.GridOptions.FixedRowClick = False
+    Grade.GridOptions.FixedHotTrack = False
+
+    Grade.Cells[Col_Selecao, 0] = "√"
+    Grade.Cells[Col_Item, 0] = "Item"
+    Grade.Cells[Col_CodigoInterno, 0] = "Código"
+    Grade.Cells[Col_CodigoOriginal, 0] = "Cód. Original"
+    Grade.Cells[Col_Descricao, 0] = "Descrição"
+    Grade.Cells[Col_Quantidade, 0] = "Quantidade"
+    Grade.Cells[Col_UM, 0] = "U.M."
+    Grade.Cells[Col_PrecoUnitario, 0] = "Vlr. Unit."
+    Grade.Cells[Col_PrecoTotal, 0] = "Vlr. Total"
+
+    Grade.ColWidth(Col_Selecao) = 20
+    Grade.ColWidth(Col_Item) = 40
+    Grade.ColWidth(Col_CodigoInterno) = 70
+    Grade.ColWidth(Col_CodigoOriginal) = 75
+    Grade.ColWidth(Col_Descricao) = 388
+    Grade.ColWidth(Col_Quantidade) = 80
+    Grade.ColWidth(Col_UM) = 35
+    Grade.ColWidth(Col_PrecoUnitario) = 80
+    Grade.ColWidth(Col_PrecoTotal) = 80
+
+    Grade.OnDblClick = Eventos.MarcaItemGrade
+
+    AbaDadosAdicionais = New TabSheet(ControleAbas)
+    AbaDadosAdicionais.Text = "&amp;Dados Adicionais"
+
+    LabelCliente = New Forms.StaticText(AbaDadosAdicionais)
+    LabelCliente.Alignment = taRightJustify
+    LabelCliente.Text = "Cliente:"
+    LabelCliente.Top = 10
+    LabelCliente.Left = 5
+    LabelCliente.AutoSize = False
+    LabelCliente.Width = 50
+    LabelCliente.Font.Color = RGB(0, 0, 255)
+
+    MemoCliente = New Forms.MemoTextBox(AbaDadosAdicionais)
+    MemoCliente.Width = 280
+
+    EditCliente = New Forms.SearchTextBox(AbaDadosAdicionais)
+    EditCliente.Top = LabelCliente.Top - 3
+    EditCliente.Left = LabelCliente.Left + LabelCliente.Width + 5
+    EditCliente.Width = 70
+    EditCliente.EditorDescricao = MemoCliente
+    EditCliente.CodPesquisa = Data7.PesquisaPadrao("OrcamentoBalcao", "CodCliente")
+
+    LabelCondicaoPagamento = New Forms.StaticText(AbaDadosAdicionais)
+    LabelCondicaoPagamento.Alignment = taRightJustify
+    LabelCondicaoPagamento.Text = "Cond. Pagamento:"
+    LabelCondicaoPagamento.Top = LabelCliente.Top
+    LabelCondicaoPagamento.Left = 445
+    LabelCondicaoPagamento.AutoSize = False
+    LabelCondicaoPagamento.Width = 90
+    LabelCondicaoPagamento.Font.Color = RGB(0, 0, 255)
+
+    MemoCondicaoPagamento = New Forms.MemoTextBox(AbaDadosAdicionais)
+    MemoCondicaoPagamento.Width = 265
+
+    EditCondicaoPagamento = New Forms.SearchTextBox(AbaDadosAdicionais)
+    EditCondicaoPagamento.Top = LabelCondicaoPagamento.Top - 3
+    EditCondicaoPagamento.Left = LabelCondicaoPagamento.Left + LabelCondicaoPagamento.Width + 5
+    EditCondicaoPagamento.Width = 70
+    EditCondicaoPagamento.EditorDescricao = MemoCondicaoPagamento
+    EditCondicaoPagamento.CodPesquisa = Data7.PesquisaPadrao("OrcamentoBalcao", "CodCondicaoPagamento")
+
+    LabelVendedor = New Forms.StaticText(AbaDadosAdicionais)
+    LabelVendedor.Alignment = taRightJustify
+    LabelVendedor.Text = "Vendedor:"
+    LabelVendedor.Top = LabelCliente.Top + 26
+    LabelVendedor.Left = 5
+    LabelVendedor.AutoSize = False
+    LabelVendedor.Width = LabelCliente.Width
+    LabelVendedor.Font.Color = RGB(0, 0, 255)
+
+    MemoVendedor = New Forms.MemoTextBox(AbaDadosAdicionais)
+    MemoVendedor.Width = MemoCliente.Width
+
+    EditVendedor = New Forms.SearchTextBox(AbaDadosAdicionais)
+    EditVendedor.Top = LabelVendedor.Top - 3
+    EditVendedor.Left = LabelVendedor.Left + LabelVendedor.Width + 5
+    EditVendedor.Width = 70
+    EditVendedor.EditorDescricao = MemoVendedor
+    EditVendedor.CodPesquisa = Data7.PesquisaPadrao("OrcamentoBalcao", "CodVendedor")
+
+    LabelObservacao = New Forms.StaticText(AbaDadosAdicionais)
+    LabelObservacao.Text = "Observação"
+    LabelObservacao.Top = LabelVendedor.Top + 26
+    LabelObservacao.Left = 5
+
+    MemoObservacao = New MemoTextBox(AbaDadosAdicionais)
+    MemoObservacao.Top = LabelObservacao.Top + 15
+    MemoObservacao.Left = LabelObservacao.Left
+    MemoObservacao.Width = ControleAbas.Width - 15
+    MemoObservacao.Height = 138
+
+    LabelDadosAdicionais = New StaticText(AbaDadosAdicionais)
+    LabelDadosAdicionais.Text = "Dados Adicionais (Informações Complementares)"
+    LabelDadosAdicionais.Top = LabelObservacao.Top + MemoObservacao.Height + 26
+    LabelDadosAdicionais.Left = LabelObservacao.Left
+
+    MemoDadosAdicionais = New MemoTextBox(AbaDadosAdicionais)
+    MemoDadosAdicionais.Top = LabelDadosAdicionais.Top + 15
+    MemoDadosAdicionais.Left = LabelDadosAdicionais.Left
+    MemoDadosAdicionais.Width = MemoObservacao.Width
+    MemoDadosAdicionais.Height = MemoObservacao.Height
+
+    LabelMensagem = New StaticText(AbaDadosAdicionais)
+    LabelMensagem.Text = "Mensagem:"
+    LabelMensagem.Top = LabelDadosAdicionais.Top + MemoDadosAdicionais.Height + 26
+    LabelMensagem.Left = LabelDadosAdicionais.Left
+
+    MemoMensagem = New MemoTextBox(AbaDadosAdicionais)
+    MemoMensagem.Width = ControleAbas.Width - 145
+
+    EditMensagem = New SearchTextBox(AbaDadosAdicionais)
+    EditMensagem.Top = LabelMensagem.Top - 3
+    EditMensagem.Left = LabelMensagem.Left + LabelMensagem.Width + 5
+    EditMensagem.Width = 70
+    EditMensagem.EditorDescricao = MemoMensagem
+    EditMensagem.CodPesquisa = Data7.PesquisaPadrao("OrcamentoBalcao", "CodMensagem")
+
+    LabelQuantidadeItens = New Forms.StaticText(TelaPrincipal)
+    LabelQuantidadeItens.Text = "Quantidade de Itens:"
+    LabelQuantidadeItens.Top = TelaPrincipal.Height - 65
+    LabelQuantidadeItens.Left = 10
+
+    LabelContador = New Forms.StaticText(TelaPrincipal)
+    LabelContador.Text = "0"
+    LabelContador.Top = LabelQuantidadeItens.Top
+    LabelContador.Left = LabelQuantidadeItens.Left + 110
+
+    LabelQuantidadeItensMarcados = New Forms.StaticText(TelaPrincipal)
+    LabelQuantidadeItensMarcados.Text = "Quantidade de Itens Marcados:"
+    LabelQuantidadeItensMarcados.Top = LabelQuantidadeItens.Top + 15
+    LabelQuantidadeItensMarcados.Left = LabelQuantidadeItens.Left
+
+    LabelContadorMarcados = New Forms.StaticText(TelaPrincipal)
+    LabelContadorMarcados.Text = "0"
+    LabelContadorMarcados.Top = LabelQuantidadeItensMarcados.Top
+    LabelContadorMarcados.Left = LabelQuantidadeItensMarcados.Left + 160
+
+    LabelValorTotal = New Forms.StaticText(TelaPrincipal)
+    LabelValorTotal.Text = "Valor Total:"
+    LabelValorTotal.Alignment = taRightJustify
+    LabelValorTotal.Top = LabelQuantidadeItens.Top
+    LabelValorTotal.Left = TelaPrincipal.Width - 200
+    LabelValorTotal.Width = 99
+
+    LabelEditValorTotal = New Forms.StaticText(TelaPrincipal)
+    LabelEditValorTotal.Text = "0,00"
+    LabelEditValorTotal.Top = LabelValorTotal.Top
+    LabelEditValorTotal.Left = TelaPrincipal.Width - 37
+    LabelEditValorTotal.Alignment = taRightJustify
+
+    LabelValorTotalMarcado = New Forms.StaticText(TelaPrincipal)
+    LabelValorTotalMarcado.Text = "Valor Total Marcado:"
+    LabelValorTotalMarcado.Alignment = taRightJustify
+    LabelValorTotalMarcado.Top = LabelQuantidadeItensMarcados.Top
+    LabelValorTotalMarcado.Left = LabelValorTotal.Left
+    LabelValorTotalMarcado.Width = LabelValorTotal.Width
+
+    LabelEditValorTotalMarcado = New Forms.StaticText(TelaPrincipal)
+    LabelEditValorTotalMarcado.Text = "0,00"
+    LabelEditValorTotalMarcado.Top = LabelValorTotalMarcado.Top
+    LabelEditValorTotalMarcado.Left = LabelEditValorTotal.Left - 2
+    LabelEditValorTotalMarcado.Alignment = taRightJustify
+    LabelEditValorTotalMarcado.Font.Bold = True
+    LabelEditValorTotalMarcado.Font.Color = RGB(0, 0, 255)
+
+    TelaPrincipal.Show()
+
+    TelaPrincipal.btnOK.OnClick = Eventos.BotaoGravaTudo
+End Sub
+
+Sub Finalizar()
+    TelaPrincipal.Free()
+End Sub
+
+End Namespace</Codigo>
+      <Linguagem>Basic</Linguagem>
+      <Aberto>true</Aberto>
+      <OrdemAbertura>1</OrdemAbertura>
+    </FormularioPrincipal>
+    <Processos>
+      <Codigo>Imports FormularioPrincipal
+
+Namespace Processos
+
+' Procedimento para preenchimento da grade
+Sub CarregaProduto(pCodModelo As Integer, pCodGrupoManutencao As Integer)
+   Dim Query As SQL.Command = New SQL.Command
+   Query.CommandText = +_
+        " SELECT Produto.CodProduto,                                                                               " +_
+        " 	     Produto.CodigoOriginal,                                                                           " +_
+        " 	     Produto.Nome,                                                                                     " +_
+        " 	     Produto.PrecoVenda,                                                                               " +_
+        "        Produto.CodUnidadeMedida,                                                                         " +_
+        "        Produto.CodTipoProduto,                                                                           " +_
+        " 	     Estrutura.Quantidade,                                                                             " +_
+        " 	     Estrutura.ValorUnitario                                                                           " +_
+        "   FROM dbo.Produto Produto                                                                               " +_
+        "   JOIN Customizado.EstruturaModeloGrupoManutencao Estrutura ON Estrutura.CodProduto = Produto.CodProduto " +_
+        "   JOIN Customizado.GrupoManutencao Grupo ON Grupo.ID = Estrutura.CodGrupoManutencao                      " +_
+        "  WHERE Estrutura.CodModelo = :CodModelo                                                                  "
+   If pCodGrupoManutencao &lt;&gt; 0 Then
+      Query.CommandText = Query.CommandText + "AND Estrutura.CodGrupoManutencao = :CodGrupoManutencao"
+   End If
+   Query.Param("CodModelo").AsInteger = pCodModelo
+
+   If pCodGrupoManutencao &lt;&gt; 0 Then
+      Query.Param("CodGrupoManutencao").AsInteger = pCodGrupoManutencao
+   End If
+
+   Query.Open
+   CarregaProdutoNaGrade(Query)
+   Query.Free
+   ContadorItensMarcados()
+   SomaItensMarcados()
+End Sub
+
+Sub CarregaProdutoNaGrade(pQuery As SQL.Command)
+   While Not pQuery.EoF
+      If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
+         Grade.AddRow
+      End If
+      Grade.Cells[Col_CodigoInterno, Grade.RowCount -1] = pQuery.Field("CodProduto").AsString
+      Grade.Cells[Col_CodigoOriginal, Grade.RowCount -1] = pQuery.Field("CodigoOriginal").AsString
+      Grade.Cells[Col_Descricao, Grade.RowCount -1] = pQuery.Field("Nome").AsString
+      Grade.Cells[Col_Quantidade, Grade.RowCount -1] = pQuery.Field("Quantidade").AsFloat.ToString(",0.00")
+      Grade.Cells[Col_UM, Grade.RowCount -1] = pQuery.Field("CodUnidadeMedida").AsString
+      If pQuery.Field("ValorUnitario").AsFloat &lt;= 0
+         Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = pQuery.Field("PrecoVenda").AsFloat.ToString(",0.00")
+      Else
+         Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = pQuery.Field("ValorUnitario").AsFloat.ToString(",0.00")
+      End If
+      Grade.Cells[Col_PrecoTotal, Grade.RowCount -1] = CDbl(pQuery.Field("Quantidade").AsFloat * pQuery.Field("ValorUnitario").AsFloat).ToString(",0.00")
+      Grade.Cells[Col_TipoProduto, Grade.RowCount -1] = pQuery.Field("CodTipoProduto").AsString
+      pQuery.Next
+   End While
+End Sub
+
+Sub BuscaDadosProduto(pCodProduto As Integer)
+   Dim Query_BuscaDadosProduto As SQL.Command = New SQL.Command
+   Query_BuscaDadosProduto.CommandText = +_
+        "SELECT Produto.CodProduto,              " +_
+        "       Produto.CodigoOriginal,          " +_
+        "       Produto.PrecoVenda               " +_
+        "  FROM dbo.Produto                      " +_
+        " WHERE Produto.CodProduto = :CodProduto "
+
+   Query_BuscaDadosProduto.Param("CodProduto").AsInteger = pCodProduto
+   Query_BuscaDadosProduto.Open
+   EditPrecoUnitario.Value = Query_BuscaDadosProduto.Field("PrecoVenda").AsFloat
+   'EditCodigoOriginal.Value = Query_BuscaDadosProduto.Field("CodigoOriginal").AsFloat
+   Query_BuscaDadosProduto.Free
+End Sub
+
+Sub InsereProdutoNaGrade()
+   If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
+      Grade.AddRow
+   End If 
+   Grade.Cells[Col_Selecao, Grade.RowCount -1] = vCaractereMarcado
+   Grade.Cells[Col_CodigoInterno, Grade.RowCount -1] = EditProduto.Text
+   'Grade.Cells[Col_CodigoOriginal, Grade.RowCount -1] =
+   Grade.Cells[Col_Descricao, Grade.RowCount -1] = MemoProduto.Lines.Text
+   Grade.Cells[Col_Quantidade, Grade.RowCount -1] = EditQuantidade.Value.ToString(",0.00")
+   Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = EditPrecoUnitario.Value.ToString(",0.00")
+   Grade.Cells[Col_PrecoTotal, Grade.RowCount -1] = CDbl(EditQuantidade.Value * EditPrecoUnitario.Value).ToString(",0.00")
+   AtualizaOrdemGrade(Grade, Col_Item)
+   ContadorItensMarcados()
+   SomaItensMarcados()
+End Sub
+
+Sub AtualizaOrdemGrade(pGrade As Forms.Grid, pColuna As Integer)
+  Dim contador As Integer = 1
+   While contador &lt; pGrade.RowCount
+     pGrade.Cells[pColuna, contador] = CStr(contador)
+     contador = contador + 1
+   End While
+End Sub
+
+Sub ContadorItensMarcados()
+  Dim contador As Integer = 1
+  Dim qtdItensSelecionados As Integer = 0
+
+   While contador &lt; Grade.RowCount
+     If Grade.Cells[Col_Selecao, contador] = vCaractereMarcado
+       qtdItensSelecionados = qtdItensSelecionados + 1
+     End If
+     contador = contador + 1
+   End While
+   LabelContadorMarcados.Text = CStr(qtdItensSelecionados)
+End Sub
+
+'Procedimento responsável por somar todos os itens marcados da grade
+Sub SomaItensMarcados()
+  Dim Contador As Integer = 1
+  Dim ValorItensMarcados As Double = 0
+
+   While Contador &lt; Grade.RowCount
+     If Grade.Cells[Col_Selecao, Contador] = vCaractereMarcado
+       ValorItensMarcados = ValorItensMarcados + CDbl(Grade.Cells[Col_PrecoTotal, Contador])
+     End If
+     Contador = Contador + 1
+   End While
+   LabelEditValorTotalMarcado.Text = CDbl(ValorItensMarcados).ToString(",0.00")
+End Sub
+
+'Procedimento responsável por somar todos os itens da grade
+Sub SomaItens()
+    Dim Contador As Integer = 1
+    Dim ValorItens As Double = 0
+
+    While Contador &lt; Grade.RowCount
+          If Grade.Cells[Col_PrecoTotal, Contador] &lt;&gt; ""
+             ValorItens = ValorItens + CDbl(Grade.Cells[Col_PrecoTotal, Contador])
+          End If
+          Contador = Contador + 1
+    End While
+    LabelEditValorTotal.Text = ValorItens.ToString(",0.00")
+End Sub
+
+'Função responsável por somar todos os serviços da grade
+Function SomaServicos() As Double
+    Dim Contador As Integer = 1
+    Dim ValorServicos As Double = 0
+
+    While Contador &lt; Grade.RowCount
+          If (Grade.Cells[Col_TipoProduto, Contador] = "MO") And (Grade.Cells[Col_PrecoTotal, Contador] &lt;&gt; "")
+             ValorServicos = ValorServicos + CDbl(Grade.Cells[Col_PrecoTotal, Contador])
+          End If
+          Contador = Contador + 1
+    End While
+    Return ValorServicos
+End Function
+
+'Função responsável por somar todos os produto da grade
+Function SomaProdutos() As Double
+    Dim Contador As Integer = 1
+    Dim ValorProdutos As Double = 0
+
+    While Contador &lt; Grade.RowCount
+          If (Grade.Cells[Col_TipoProduto, Contador] &lt;&gt; "MO") And (Grade.Cells[Col_PrecoTotal, Contador] &lt;&gt; "")
+             ValorProdutos = ValorProdutos + CDbl(Grade.Cells[Col_PrecoTotal, Contador])
+          End If
+          Contador = Contador + 1
+    End While
+    Return ValorProdutos
+End Function
+
+'Função responsável por somar a quantidade de peças marcadas na grade
+Function SomaQuantidadePecas() As Double
+    Dim Contador As Integer = 1
+    Dim QuantidadePecas As Double = 0
+
+    While Contador &lt; Grade.RowCount
+          If Grade.Cells[Col_Selecao, Contador] = vCaractereMarcado
+             QuantidadePecas = QuantidadePecas + CDbl(Grade.Cells[Col_Quantidade, Contador])
+          End If
+          Contador = Contador + 1
+    End While
+    Return QuantidadePecas
+End Function
+
+'Procedimento responsável por gravar o orçamento lançado no banco de dados
+Sub GravaOrcamento()
+    Dim Query_GravaOrcamento As SQL.Command = New SQL.Command()
+    Query_GravaOrcamento.CommandText = +_
+          "INSERT INTO dbo.OrcamentoBalcao                          " +_
+          "            (CodEmpresa,                                 " +_
+          "             CodFilial,                                  " +_
+          "             CodOrcamento,                               " +_
+          "             CodVendedor,                                " +_
+          "             CodCliente,                                 " +_
+          "             DataDigitacao,                              " +_
+          "             VendaEfetuada,                              " +_
+          "             PesoLiquido,                                " +_
+          "             PesoBruto,                                  " +_
+          "             ValorFrete,                                 " +_
+          "             ValorSeguroFrete,                           " +_
+          "             ValorDespesaFrete,                          " +_
+          "             CodCondicaoPagamento,                       " +_
+          "             TaxaJuro,                                   " +_
+          "             TaxaDesconto,                               " +_
+          "             ValorDesconto,                              " +_
+          "             ValorEntrada,                               " +_
+          "             ValorTotal,                                 " +_
+          "             ValorTroca,                                 " +_
+          "             UsuarioAbertura,                            " +_
+          "             EstacaoTrabalhoAbertura,                    " +_
+          "             TotalServico,                               " +_
+          "             TotalMercadoria,                            " +_
+          "             CodMensagem,                                " +_
+          "             Observacao,                                 " +_
+          "             PercentualDescontoProduto,                  " +_
+          "             PercentualDescontoServico,                  " +_
+          "             DataInclusao,                               " +_
+          "             HoraInclusao,                               " +_
+          "             ValorLivre1,                                " +_
+          "             ValorLivre2,                                " +_
+          "             ValorLivre3,                                " +_
+          "             ValorAcrescimo,                             " +_
+          "             ValorDescontoCondicaoPagamento,             " +_
+          "             ValorAcrescimoCondicaoPagamento,            " +_
+          "             ValorDescontoDigitadoProduto,               " +_
+          "             ValorAcrescimoDigitadoProduto,              " +_
+          "             ValorDescontoProdutoTotal1,                 " +_
+          "             ValorDescontoProdutoTotal2,                 " +_
+          "             ValorAcrescimoTotal1,                       " +_
+          "             ValorAcrescimoTotal2,                       " +_
+          "             PercentualDescontoDigitadoProduto,          " +_
+          "             PercentualAcrescimoDigitadoProduto,         " +_
+          "             PercentualDescontoCondicaoPagamento,        " +_
+          "             PercentualAcrescimoCondicaoPagamento,       " +_
+          "             PercentualDescontoProdutoTotal1,            " +_
+          "             PercentualDescontoProdutoTotal2,            " +_
+          "             PercentualAcrescimoTotal1,                  " +_
+          "             PercentualAcrescimoTotal2,                  " +_
+          "             PercentualAcrescimo,                        " +_
+          "             PercentualDesconto,                         " +_
+          "             ValorTotalBruto,                            " +_
+          "             DescricaoMensagem,                          " +_
+          "             PercentualDescontoPadraoProduto,            " +_
+          "             ValorDescontoPadraoProduto,                 " +_
+          "             BaseICMS,                                   " +_
+          "             ValorICMS,                                  " +_
+          "             BaseIPI,                                    " +_
+          "             ValorIPI,                                   " +_
+          "             BaseISS,                                    " +_
+          "             ValorISS,                                   " +_
+          "             ValorIRRF,                                  " +_
+          "             BaseIRRF,                                   " +_
+          "             ValorPIS,                                   " +_
+          "             BasePIS,                                    " +_
+          "             ValorCOFINS,                                " +_
+          "             BaseCOFINS,                                 " +_
+          "             ValorCSLL,                                  " +_
+          "             BaseCSLL,                                   " +_
+          "             ValorSIMPLES,                               " +_
+          "             BaseSIMPLES,                                " +_
+          "             ValorDescontoServicoTotal1,                 " +_
+          "             ValorDescontoServicoTotal2,                 " +_
+          "             PercentualDescontoServicoTotal1,            " +_
+          "             PercentualDescontoServicoTotal2,            " +_
+          "             QtdeItens,                                  " +_
+          "             QtdePecas)                                  " +_
+          "     VALUES (:CodEmpresa,                                " +_
+          "             :CodFilial,                                 " +_
+          "             :CodOrcamento,                              " +_
+          "             :CodVendedor,                               " +_
+          "             :CodCliente,                                " +_
+          "             :DataDigitacao,                             " +_
+          "             :VendaEfetuada,                             " +_
+          "             :PesoLiquido,                               " +_
+          "             :PesoBruto,                                 " +_
+          "             :ValorFrete,                                " +_
+          "             :ValorSeguroFrete,                          " +_
+          "             :ValorDespesaFrete,                         " +_
+          "             :CodCondicaoPagamento,                      " +_
+          "             :TaxaJuro,                                  " +_
+          "             :TaxaDesconto,                              " +_
+          "             :ValorDesconto,                             " +_
+          "             :ValorEntrada,                              " +_
+          "             :ValorTotal,                                " +_
+          "             :ValorTroca,                                " +_
+          "             :UsuarioAbertura,                           " +_
+          "             :EstacaoTrabalhoAbertura,                   " +_
+          "             :TotalServico,                              " +_
+          "             :TotalMercadoria,                           " +_
+          "             :CodMensagem,                               " +_
+          "             :Observacao,                                " +_
+          "             :PercentualDescontoProduto,                 " +_
+          "             :PercentualDescontoServico,                 " +_
+          "             :DataInclusao,                              " +_
+          "             :HoraInclusao,                              " +_
+          "             :ValorLivre1,                               " +_
+          "             :ValorLivre2,                               " +_
+          "             :ValorLivre3,                               " +_
+          "             :ValorAcrescimo,                            " +_
+          "             :ValorDescontoCondicaoPagamento,            " +_
+          "             :ValorAcrescimoCondicaoPagamento,           " +_
+          "             :ValorDescontoDigitadoProduto,              " +_
+          "             :ValorAcrescimoDigitadoProduto,             " +_
+          "             :ValorDescontoProdutoTotal1,                " +_
+          "             :ValorDescontoProdutoTotal2,                " +_
+          "             :ValorAcrescimoTotal1,                      " +_
+          "             :ValorAcrescimoTotal2,                      " +_
+          "             :PercentualDescontoDigitadoProduto,         " +_
+          "             :PercentualAcrescimoDigitadoProduto,        " +_
+          "             :PercentualDescontoCondicaoPagamento,       " +_
+          "             :PercentualAcrescimoCondicaoPagamento,      " +_
+          "             :PercentualDescontoProdutoTotal1,           " +_
+          "             :PercentualDescontoProdutoTotal2,           " +_
+          "             :PercentualAcrescimoTotal1,                 " +_
+          "             :PercentualAcrescimoTotal2,                 " +_
+          "             :PercentualAcrescimo,                       " +_
+          "             :PercentualDesconto,                        " +_
+          "             :ValorTotalBruto,                           " +_
+          "             :DescricaoMensagem,                         " +_
+          "             :PercentualDescontoPadraoProduto,           " +_
+          "             :ValorDescontoPadraoProduto,                " +_
+          "             :BaseICMS,                                  " +_
+          "             :ValorICMS,                                 " +_
+          "             :BaseIPI,                                   " +_
+          "             :ValorIPI,                                  " +_
+          "             :BaseISS,                                   " +_
+          "             :ValorISS,                                  " +_
+          "             :ValorIRRF,                                 " +_
+          "             :BaseIRRF,                                  " +_
+          "             :ValorPIS,                                  " +_
+          "             :BasePIS,                                   " +_
+          "             :ValorCOFINS,                               " +_
+          "             :BaseCOFINS,                                " +_
+          "             :ValorCSLL,                                 " +_
+          "             :BaseCSLL,                                  " +_
+          "             :ValorSIMPLES,                              " +_
+          "             :BaseSIMPLES,                               " +_
+          "             :ValorDescontoServicoTotal1,                " +_
+          "             :ValorDescontoServicoTotal2,                " +_
+          "             :PercentualDescontoServicoTotal1,           " +_
+          "             :PercentualDescontoServicoTotal2,           " +_
+          "             :QtdeItens,                                 " +_
+          "             :QtdePecas)                                 "
+
+   Query_GravaOrcamento.Param("CodEmpresa").AsInteger = vCodEmpresa
+   Query_GravaOrcamento.Param("CodFilial").AsInteger = vCodFilial
+   Query_GravaOrcamento.Param("CodOrcamento").AsInteger = Data7.ProximoCodigo("dbo.OrcamentoBalcao",Data7.CodEmpresa())
+   Query_GravaOrcamento.Param("CodVendedor").AsInteger = CInt(EditVendedor.Text)
+   Query_GravaOrcamento.Param("CodCliente").AsInteger = CInt(EditCliente.Text)
+   Query_GravaOrcamento.Param("DataDigitacao").AsDate = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
+   Query_GravaOrcamento.Param("VendaEfetuada").AsString = "N"
+   Query_GravaOrcamento.Param("PesoLiquido").AsFloat = 0
+   Query_GravaOrcamento.Param("PesoBruto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorFrete").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorSeguroFrete").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDespesaFrete").AsFloat = 0
+   Query_GravaOrcamento.Param("CodCondicaoPagamento").AsString = EditCondicaoPagamento.Text
+   Query_GravaOrcamento.Param("TaxaJuro").AsFloat = 0
+   Query_GravaOrcamento.Param("TaxaDesconto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDesconto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorEntrada").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorTotal").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorTroca").AsFloat = 0
+   Query_GravaOrcamento.Param("TotalServico").AsFloat = SomaServicos()
+   Query_GravaOrcamento.Param("TotalMercadoria").AsFloat = SomaProdutos()
+   Query_GravaOrcamento.Param("UsuarioAbertura").AsString = vNomeUsuario
+   Query_GravaOrcamento.Param("EstacaoTrabalhoAbertura").AsString = vNomeEstacao
+   Query_GravaOrcamento.Param("CodMensagem").AsInteger = CInt(EditMensagem.Text)
+   Query_GravaOrcamento.Param("Observacao").AsString = MemoObservacao.Lines.Text
+   Query_GravaOrcamento.Param("PercentualDescontoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoServico").AsFloat = 0
+   Query_GravaOrcamento.Param("DataInclusao").AsDate = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
+   Query_GravaOrcamento.Param("HoraInclusao").AsString = DateUtils.ToStringFormat("HH:MM", DateTime())
+   Query_GravaOrcamento.Param("ValorLivre1").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorLivre2").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorLivre3").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorAcrescimo").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoCondicaoPagamento").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorAcrescimoCondicaoPagamento").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoDigitadoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorAcrescimoDigitadoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoProdutoTotal1").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoProdutoTotal2").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorAcrescimoTotal1").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorAcrescimoTotal2").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoDigitadoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualAcrescimoDigitadoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoCondicaoPagamento").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualAcrescimoCondicaoPagamento").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoProdutoTotal1").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoProdutoTotal2").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualAcrescimoTotal1").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualAcrescimoTotal2").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualAcrescimo").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDesconto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorTotalBruto").AsFloat = CDbl(LabelEditValorTotalMarcado.Text)
+   Query_GravaOrcamento.Param("DescricaoMensagem").AsString = MemoDadosAdicionais.Lines.Text
+   Query_GravaOrcamento.Param("PercentualDescontoPadraoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoPadraoProduto").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseICMS").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorICMS").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseIPI").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorIPI").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseISS").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorISS").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorIRRF").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseIRRF").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorPIS").AsFloat = 0
+   Query_GravaOrcamento.Param("BasePIS").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorCOFINS").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseCOFINS").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorCSLL").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseCSLL").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorSIMPLES").AsFloat = 0
+   Query_GravaOrcamento.Param("BaseSIMPLES").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoServicoTotal1").AsFloat = 0
+   Query_GravaOrcamento.Param("ValorDescontoServicoTotal2").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoServicoTotal1").AsFloat = 0
+   Query_GravaOrcamento.Param("PercentualDescontoServicoTotal2").AsFloat = 0
+   Query_GravaOrcamento.Param("QtdeItens").AsInteger = CInt(LabelQuantidadeItensMarcados.Text)
+   Query_GravaOrcamento.Param("QtdePecas").AsFloat = SomaQuantidadePecas()
+
+   Query_GravaOrcamento.ExecSQL()
+   Query_GravaOrcamento.Free()
+end Sub
+
+'Procedimento responsável por gravar os itens do orçamento lançados no banco de dados
+Sub GravaItemOrcamento()
+    Dim Query_GravaItemOrcamento As SQL.Command = New SQL.Command()
+    Dim Contador As Integer = 1
+
+    While (Contador &lt; Grade.RowCount) And (Grade.Cells[Col_Selecao, Contador] = vCaractereMarcado)
+          Query_GravaItemOrcamento.CommandText = +_
+          "INSERT INTO dbo.ItemOrcamentoBalcao                      " +_
+          "            (CodEmpresa,                                 " +_
+          "             CodOrcamento,                               " +_
+          "             Item,                                       " +_
+          "             CodProduto,                                 " +_
+          "             Quantidade,                                 " +_
+          "             QtdDevolvida,                               " +_
+          "             PrecoUnitario,                              " +_
+          "             ValorDesconto,                              " +_
+          "             CodLocalArmazenagem,                        " +_
+          "             CodVendedor,                                " +_
+          "             PrecoTabela,                                " +_
+          "             CodTES,                                     " +_
+          "             CFOP,                                       " +_
+          "             ValorICMS,                                  " +_
+          "             ValorISS,                                   " +_
+          "             ValorIPI,                                   " +_
+          "             BaseICMS,                                   " +_
+          "             ValorPontoEquilibrio,                       " +_
+          "             CustoMedio,                                 " +_
+          "             ValorCustoReposicao,                        " +_
+          "             PrecoCompra,                                " +_
+          "             PercentualComissao,                         " +_
+          "             PercentualComissaoPagoBaixa,                " +_
+          "             Garantia,                                   " +_
+          "             NomeProduto,                                " +_
+          "             ValorAcrescimo,                             " +_
+          "             ValorDescontoDigitadoProduto,               " +_
+          "             ValorAcrescimoDigitadoProduto,              " +_
+          "             ValorDescontoProdutoTotal1,                 " +_
+          "             ValorDescontoProdutoTotal2,                 " +_
+          "             ValorAcrescimoTotal1,                       " +_
+          "             ValorAcrescimoTotal2,                       " +_
+          "             ValorItem,                                  " +_
+          "             PercentualDescontoCondicaoPagamento,        " +_
+          "             PercentualAcrescimoCondicaoPagamento,       " +_
+          "             PercentualDescontoDigitadoProduto,          " +_
+          "             PercentualAcrescimoDigitadoProduto,         " +_
+          "             PercentualDescontoProdutoTotal1,            " +_
+          "             PercentualDescontoProdutoTotal2,            " +_
+          "             PercentualAcrescimoTotal1,                  " +_
+          "             PercentualAcrescimoTotal2,                  " +_
+          "             PercentualAcrescimo,                        " +_
+          "             PercentualDesconto,                         " +_
+          "             PrecoUtilizado,                             " +_
+          "             PercentualDescontoPadrao,                   " +_
+          "             ValorDescontoPadrao,                        " +_
+          "             CodTipoMovimentoEstoque,                    " +_
+          "             FatorConversao,                             " +_
+          "             TipoFatorConversao,                         " +_
+          "             CodUnidadeMedida,                           " +_
+          "             QuantidadeConvertida,                       " +_
+          "             Status,                                     " +_
+          "             QuantidadeEntregue,                         " +_
+          "             PrecoPromocao,                              " +_
+          "             ValorDescontoServicoTotal1,                 " +_
+          "             ValorDescontoServicoTotal2,                 " +_
+          "             PercentualDescontoServicoTotal1,            " +_
+          "             PercentualDescontoServicoTotal2,            " +_
+          "             PrecoIndexador,                             " +_
+          "             IndexadorPreco,                             " +_
+          "             TipoIndexadorPreco,                         " +_
+          "             PercentualReducaoIcmsOrigem)                " +_
+          "     VALUES (:CodEmpresa,                                " +_
+          "             :CodOrcamento,                              " +_
+          "             :Item,                                      " +_
+          "             :CodProduto,                                " +_
+          "             :Quantidade,                                " +_
+          "             :QtdDevolvida,                              " +_
+          "             :PrecoUnitario,                             " +_
+          "             :ValorDesconto,                             " +_
+          "             :CodLocalArmazenagem,                       " +_
+          "             :CodVendedor,                               " +_
+          "             :PrecoTabela,                               " +_
+          "             :CodTES,                                    " +_
+          "             :CFOP,                                      " +_
+          "             :ValorICMS,                                 " +_
+          "             :ValorISS,                                  " +_
+          "             :ValorIPI,                                  " +_
+          "             :BaseICMS,                                  " +_
+          "             :ValorPontoEquilibrio,                      " +_
+          "             :CustoMedio,                                " +_
+          "             :ValorCustoReposicao,                       " +_
+          "             :PrecoCompra,                               " +_
+          "             :PercentualComissao,                        " +_
+          "             :PercentualComissaoPagoBaixa,               " +_
+          "             :Garantia,                                  " +_
+          "             :NomeProduto,                               " +_
+          "             :ValorAcrescimo,                            " +_
+          "             :ValorDescontoDigitadoProduto,              " +_
+          "             :ValorAcrescimoDigitadoProduto,             " +_
+          "             :ValorDescontoProdutoTotal1,                " +_
+          "             :ValorDescontoProdutoTotal2,                " +_
+          "             :ValorAcrescimoTotal1,                      " +_
+          "             :ValorAcrescimoTotal2,                      " +_
+          "             :ValorItem,                                 " +_
+          "             :PercentualDescontoCondicaoPagamento,       " +_
+          "             :PercentualAcrescimoCondicaoPagamento,      " +_
+          "             :PercentualDescontoDigitadoProduto,         " +_
+          "             :PercentualAcrescimoDigitadoProduto,        " +_
+          "             :PercentualDescontoProdutoTotal1,           " +_
+          "             :PercentualDescontoProdutoTotal2,           " +_
+          "             :PercentualAcrescimoTotal1,                 " +_
+          "             :PercentualAcrescimoTotal2,                 " +_
+          "             :PercentualAcrescimo,                       " +_
+          "             :PercentualDesconto,                        " +_
+          "             :PrecoUtilizado,                            " +_
+          "             :PercentualDescontoPadrao,                  " +_
+          "             :ValorDescontoPadrao,                       " +_
+          "             :CodTipoMovimentoEstoque,                   " +_
+          "             :FatorConversao,                            " +_
+          "             :TipoFatorConversao,                        " +_
+          "             :CodUnidadeMedida,                          " +_
+          "             :QuantidadeConvertida,                      " +_
+          "             :Status,                                    " +_
+          "             :QuantidadeEntregue,                        " +_
+          "             :PrecoPromocao,                             " +_
+          "             :ValorDescontoServicoTotal1,                " +_
+          "             :ValorDescontoServicoTotal2,                " +_
+          "             :PercentualDescontoServicoTotal1,           " +_
+          "             :PercentualDescontoServicoTotal2,           " +_
+          "             :PrecoIndexador,                            " +_
+          "             :IndexadorPreco,                            " +_
+          "             :TipoIndexadorPreco,                        " +_
+          "             :PercentualReducaoIcmsOrigem)               "
+
+          Query_GravaItemOrcamento.Param("CodEmpresa").AsInteger = vCodEmpresa
+          Query_GravaItemOrcamento.Param("CodOrcamento").AsInteger = vCodFilial
+          Query_GravaItemOrcamento.Param("Item").AsInteger = CInt(Grade.Cells[Col_Item, Contador])
+          Query_GravaItemOrcamento.Param("CodProduto").AsInteger = CInt(Grade.Cells[Col_CodigoInterno, Contador])
+          Query_GravaItemOrcamento.Param("Quantidade").AsFloat = CDbl(Grade.Cells[Col_Quantidade, Contador])
+          Query_GravaItemOrcamento.Param("QtdDevolvida").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PrecoUnitario").AsFloat = CDbl(Grade.Cells[Col_PrecoUnitario, Contador])
+          Query_GravaItemOrcamento.Param("ValorDesconto").AsFloat = 0
+          Query_GravaItemOrcamento.Param("CodLocalArmazenagem").AsInteger = 1 'verificar
+          Query_GravaItemOrcamento.Param("CodVendedor").AsInteger = CInt(EditVendedor.Text)
+          Query_GravaItemOrcamento.Param("PrecoTabela").AsFloat = Query_GravaItemOrcamento.Param("PrecoUnitario").AsFloat
+          Query_GravaItemOrcamento.Param("CodTES").AsInteger = 506 'verificar
+          Query_GravaItemOrcamento.Param("CFOP").AsString = "5102" 'verificar
+          Query_GravaItemOrcamento.Param("ValorICMS").AsFloat = Query_GravaItemOrcamento.Param("PrecoUnitario").AsFloat
+          Query_GravaItemOrcamento.Param("ValorISS").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorIPI").AsFloat = 0
+          Query_GravaItemOrcamento.Param("BaseICMS").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorPontoEquilibrio").AsFloat = 0
+          Query_GravaItemOrcamento.Param("CustoMedio").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorCustoReposicao").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PrecoCompra").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualComissao").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualComissaoPagoBaixa").AsFloat = 0
+          Query_GravaItemOrcamento.Param("Garantia").AsString = "N"
+          Query_GravaItemOrcamento.Param("NomeProduto").AsString = Grade.Cells[Col_PrecoUnitario, Contador]
+          Query_GravaItemOrcamento.Param("ValorAcrescimo").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorDescontoDigitadoProduto").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorAcrescimoDigitadoProduto").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorDescontoProdutoTotal1").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorDescontoProdutoTotal2").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorAcrescimoTotal1").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorAcrescimoTotal2").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorItem").AsFloat = CDbl(Grade.Cells[Col_PrecoTotal, Contador])
+          Query_GravaItemOrcamento.Param("PercentualDescontoCondicaoPagamento").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualAcrescimoCondicaoPagamento").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualDescontoDigitadoProduto").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualAcrescimoDigitadoProduto").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualDescontoProdutoTotal1").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualDescontoProdutoTotal2").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualAcrescimoTotal1").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualAcrescimoTotal2").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualAcrescimo").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualDesconto").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PrecoUtilizado").AsString = "PV" 'verificar
+          Query_GravaItemOrcamento.Param("PercentualDescontoPadrao").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorDescontoPadrao").AsFloat = 0
+          Query_GravaItemOrcamento.Param("CodTipoMovimentoEstoque").AsInteger = 1 'verificar
+          Query_GravaItemOrcamento.Param("FatorConversao").AsFloat = 1 'verificar
+          Query_GravaItemOrcamento.Param("TipoFatorConversao").AsString = "M" 'verificar
+          Query_GravaItemOrcamento.Param("CodUnidadeMedida").AsString = Grade.Cells[Col_UM, Contador]
+          Query_GravaItemOrcamento.Param("QuantidadeConvertida").AsFloat = CDbl(Grade.Cells[Col_Quantidade, Contador])
+          Query_GravaItemOrcamento.Param("Status").AsString = "A"
+          Query_GravaItemOrcamento.Param("QuantidadeEntregue").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PrecoPromocao").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorDescontoServicoTotal1").AsFloat = 0
+          Query_GravaItemOrcamento.Param("ValorDescontoServicoTotal2").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualDescontoServicoTotal1").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PercentualDescontoServicoTotal2").AsFloat = 0
+          Query_GravaItemOrcamento.Param("PrecoIndexador").AsFloat = 1
+          Query_GravaItemOrcamento.Param("IndexadorPreco").AsFloat = 1
+          Query_GravaItemOrcamento.Param("TipoIndexadorPreco").AsString = "M"
+          Query_GravaItemOrcamento.Param("PercentualReducaoIcmsOrigem").AsFloat = 0
+
+          Contador = Contador + 1
+    End While
+End Sub
+End Namespace</Codigo>
+      <Linguagem>Basic</Linguagem>
+      <Aberto>true</Aberto>
+      <OrdemAbertura>2</OrdemAbertura>
+    </Processos>
+    <Eventos>
+      <Codigo>Imports Forms
+Imports FormularioPrincipal
+Imports Processos
+
+Dim Eventos As TEventos
+
+Sub EventosInicializar()
+    Eventos = New TEventos()
+End sub
+
+Class TEventos
+
+Sub OnExitPesquisaMontadora(Sender As SearchTextBox)
+   If EditMontadora.Text &lt;&gt; "" Then
+      EditModelo.ExpressaoFiltro = "CodMontadora = " + EditMontadora.AsString
+   Else
+      EditModelo.ExpressaoFiltro = ""
+   End If
+End Sub
+
+' Procedimento responsável por "marcar" os produtos apresentados na grade
+Sub MarcaItemGrade(Sender As TObject)
+    If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
+       If Grade.Cells[Col_Selecao, Grade.Row] = ""
+          Grade.Cells[Col_Selecao, Grade.Row] = vCaractereMarcado
+          Grade.SetFontColor(Col_Selecao, Grade.Row, 16711680)
+       Else
+          Grade.Cells[Col_Selecao, Grade.Row] = ""
+       End If
+    End If
+    Processos.ContadorItensMarcados()
+    Processos.SomaItensMarcados()
+    Processos.SomaItens()
+End Sub
+
+'Procedimento para verificação dos campos obrigatórios para filtro
+Sub VerificaParametrosObrigatorios ()
+    If EditModelo.Text = "" Then
+       MessageBox.Show("O modelo do veículo é obrigatório")
+       EditModelo.SetFocus()
+    End If
+End Sub
+
+' Procedimento para limpeza dos campos do painel de produtos
+Sub LimpaProdutos()
+    EditProduto.Text = ""
+    MemoProduto.Text = ""
+    EditQuantidade.Text = ""
+    EditPrecoUnitario.Text = ""
+    EditPrecoTotal.Text = ""
+End Sub
+
+' Procedimento responsável por "limpar" a tela do usuário
+Sub LimparTela (Sender As TObject)
+    EditMontadora.Text = ""
+    MemoMontadora.Lines.Text = ""
+    EditModelo.Text = ""
+    MemoModelo.Lines.Text = ""
+    EditGrupoManutencao.Text = ""
+    MemoGrupoManutencao.Lines.Text = ""
+    EditRefMotor.Text = ""
+    LimpaProdutos()
+
+    Grade.ClearNormalCells()
+    Grade.RowCount = 2
+
+    EditMontadora.SetFocus()
+    LabelContador.Text = "0"
+End Sub
+
+'Procedimento que calcula o valor total do produto
+Sub CalculaPrecoTotalProduto (Sender As TObject)
+    EditPrecoTotal.Value = (EditQuantidade.Value * EditPrecoUnitario.Value)
+End Sub
+
+Sub OnClickBotaoSelecionar(Sender As CommandButton)
+    VerificaParametrosObrigatorios()
+    MarcaItemGrade(FormularioPrincipal.ButSelecionar)
+    If EditGrupoManutencao.Text = "" Then
+       Processos.CarregaProduto(CInt(EditModelo.Text), 0)
+    Else
+       Processos.CarregaProduto(CInt(EditModelo.Text), CInt(EditGrupoManutencao.Text))
+    End If
+    ContagemItensLancados()
+    Processos.SomaItens()
+    'Grade.Cells[Col_Selecao, Grade.Row] = vCaractereMarcado
+
+End Sub
+
+Sub OnExitPesquisaProduto(Sender As TObject)
+   If EditProduto.Text &lt;&gt; "" Then
+      Processos.BuscaDadosProduto(CInt(EditProduto.Text))
+      EditQuantidade.Text = "1"
+      EditQuantidade.SetFocus()
+   End If
+End Sub
+
+'Procedimento responsável pela inserção manual de itens na grade
+Sub OnClickIncluir(Sender As CommandButton)
+   If EditProduto.Text = "" Then
+      MessageBox.Show("Selecione um produto.")
+   Else
+      If EditQuantidade.Value &lt;= 0 Then
+         MessageBox.Show("Informe a quantidade do item a ser inserido.")
+         EditQuantidade.SetFocus()
+      Else
+         Processos.InsereProdutoNaGrade()
+         ContagemItensLancados()
+         LimpaProdutos()
+         Processos.SomaItensMarcados()
+         Processos.SomaItens()
+         EditProduto.SetFocus()
+      End If
+   End If
+End Sub
+
+'Procedimento responsável pela remoção dos itens selecionados da grade
+Sub RemoveProdutosGrade (Sender As TObject)
+    If Grade.Cells[Col_CodigoInterno, Grade.Row] = "" Then
+       Forms.MessageBox.Show("Selecione um produto para remoção.")
+    Else
+       If Grade.RowCount = 2
+          Grade.AddRow()
+          Grade.DeleteRow(Grade.Row)
+       Else
+          Grade.DeleteRow(Grade.Row)
+       End If
+    End If
+    ContagemItensLancados()
+    Processos.AtualizaOrdemGrade(Grade, Col_Item)
+    Processos.ContadorItensMarcados()
+    Processos.SomaItensMarcados()
+    Processos.SomaItens()
+End Sub
+
+' Procedimento responsável pela alteração do nome do botão Alterar
+Sub AlteraNomeBotaoAlterar()
+    ButAlterar.Text = "&amp;Atualizar"
+End Sub
+
+'Procedimento responsável pela restauração do nome do botão Alterar
+Sub RestauraNomeBotaoAlterar()
+    ButAlterar.Text = "&amp;Alterar"
+End Sub
+
+'Procedimento responsável pela alteração dos itens da grade
+Sub AlterarProduto()
+   If vLinhaEdicao &gt; 0 Then
+      Grade.Cells[Col_CodigoInterno, vLinhaEdicao] = EditProduto.Text 
+      Grade.Cells[Col_Quantidade, vLinhaEdicao] = EditQuantidade.Value.ToString(",0.00")
+      Grade.Cells[Col_PrecoUnitario, vLinhaEdicao] = EditPrecoUnitario.Value.ToString(",0.00")
+      Grade.Cells[Col_PrecoTotal, vLinhaEdicao] = EditPrecoTotal.Value.ToString(",0.00")
+      RestauraNomeBotaoAlterar()
+      LimpaProdutos()
+      vLinhaEdicao = 0
+      FormularioPrincipal.ButIncluir.Enabled = True
+      FormularioPrincipal.ButExcluir.Enabled = True
+   End If
+End Sub
+
+'Procedimento responsável por carregar os itens da grade para alteração
+Sub AlterarProdutosDaGrade (Sender As TObject)
+   If ButAlterar.Text = "&amp;Alterar" Then
+       If Grade.Cells[Col_CodigoInterno, Grade.Row] = "" Then
+          Forms.MessageBox.Show("Selecione um produto para alteração.")
+       Else
+          EditProduto.Text = Grade.Cells[Col_CodigoInterno, Grade.Row]
+          MemoProduto.Lines.Text = Grade.Cells[Col_Descricao, Grade.Row]
+          EditQuantidade.Text = Grade.Cells[Col_Quantidade, Grade.Row]
+          EditPrecoUnitario.Text = Grade.Cells[Col_PrecoUnitario, Grade.Row]
+          EditPrecoTotal.Text = Grade.Cells[Col_PrecoTotal, Grade.Row]
+          vLinhaEdicao = Grade.Row
+          AlteraNomeBotaoAlterar()
+          FormularioPrincipal.ButIncluir.Enabled = False
+          FormularioPrincipal.ButExcluir.Enabled = False
+          Processos.SomaItensMarcados()
+          Processos.SomaItens()
+       End If
+   ElseIf ButAlterar.Text = "&amp;Atualizar" Then
+      AlterarProduto()
+   End If
+End Sub
+
+'Procedimento responsável pela contagem dos itens lançados
+Sub ContagemItensLancados ()
+    Dim vContador As Integer = 1
+
+    If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; "" Then
+       While vContador &lt; Grade.RowCount
+             vContador = vContador + 1
+       End While
+    End If
+    LabelContador.Text = CStr(vContador - 1)
+End Sub
+
+'Procedimento responsável por iniciar e finalizar as instruções SQL de
+'inserção de registros
+Sub BotaoGravaTudo(Sender As TObject)
+   SQL.Connection.StartTransaction()
+   GravaOrcamento()
+   GravaItemOrcamento()
+   SQL.Connection.Commit()
+End Sub
+
+Sub OnClickOkFormularioPrincipal(Sender As TObject)
+   FormularioPrincipal.Finalizar()
+End Sub
+
+End Class
+
+Sub EventosFinalizar()
+    Eventos.Free()
+End Sub</Codigo>
+      <Linguagem>Basic</Linguagem>
+      <Aberto>true</Aberto>
+      <OrdemAbertura>3</OrdemAbertura>
+    </Eventos>
+    <Help>
+      <Codigo>'/* Tabela responsável pelo cadastro das "marcas" dos veículos
+' * que a empresa presta serviços. */
+
+'CREATE TABLE Customizado.Montadora (
+'	ID INT PRIMAY KEY,
+'	Ativo VARCHAR(1) NOT NULL,
+'	Descricao varchar(80) not null
+')
+
+'/* Tabela responsável pelo cadastro das modelos dos veículos
+' * que a empresa presta serviços. */
+
+'CREATE TABLE Customizado.Modelo (
+'	ID INT PRIMARY KEY,
+'	Ativo vARCHAR(1) NOT NULL,
+'	Descricao VARCHAR(80) NOT NULL,
+'	CodMontadora INT NOT NULL
+')
+
+'/* Tabela responsável pelo cadastro dos serviços por grupos de
+' * manutenção prestados pela empresa tais como suspensão,
+' * balanceamento ou elétrica por exemplo. */
+
+'CREATE TABLE Customizado.GrupoManutencao (
+'	ID INT PRIMAY KEY,
+'	Ativo VARCHAR(1) NOT NULL,
+'	Descricao VARCHAR(80) NOT NULL
+')
+
+'/* Tabela responsável pelo cadastro dos produtos e serviços
+' * utilizados pela empresa na prestação dos serviços. */
+
+'CREATE TABLE Customizado.EstruturaModeloGrupoManutencao (
+'	ID INT PRIMAY KEY,
+'	Ativo VARCHAR(1) NOT NULL,
+'	CodModelo INT NOT NULL
+'	CodGrupoManutencao INT NOT NULL,
+'	CodProduto INT NOT NULL,
+'  Quantidade NUMERIC(25,10) NOT NULL,
+'  ValorUnitario NUMERIC(25,10) NOT NULL
+')</Codigo>
+      <Linguagem>Basic</Linguagem>
+      <Aberto>true</Aberto>
+      <OrdemAbertura>4</OrdemAbertura>
+    </Help>
+  </Modulos>
+  <Opcoes>
+    <Autor></Autor>
+    <Versao>1.0.0.0</Versao>
+    <Informacoes></Informacoes>
+    <CodEmpresa>1</CodEmpresa>
+    <CodFilial>1</CodFilial>
+    <NomeUsuario>Administrador</NomeUsuario>
+    <PreScript></PreScript>
+  </Opcoes>
+</Projeto_Data7>
