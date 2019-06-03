@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Projeto_Data7 xmlns="http://www.se7esistemas.com.br/Data7DevStudio" Versão="1.0">
   <Nome>Principal</Nome>
-  <Data>27/05/2019 09:03:41</Data>
-  <Codigo>Dim vLinhaEdicao           As Integer
+  <Data>03/06/2019 17:48:05</Data>
+  <Codigo>Dim Eventos As TEventos = New TEventos()
+Dim vLinhaEdicao           As Integer
 Dim vCodEmpresa            As Integer = Data7.CodEmpresa()
 Dim vCodFilial             As Integer = Data7.CodFilial()
+Dim vProximoCodigo         As Integer = 0
 Dim vNomeUsuario           As String = Data7.NomeUsuario()
 Dim vNomeEstacao           As String = Environment.MachineName
 
@@ -20,13 +22,12 @@ Const Col_PrecoUnitario    As Integer = 7
 Const Col_PrecoTotal       As Integer = 8
 Const Col_TipoProduto      As Integer = 9
 
-EventosInicializar()
 FormularioPrincipal.Inicializar()
-EventosFinalizar()
+Eventos.Free()
 FormularioPrincipal.Finalizar()</Codigo>
   <Aberto>true</Aberto>
   <OrdemAbertura>0</OrdemAbertura>
-  <ItemAberto>3</ItemAberto>
+  <ItemAberto>2</ItemAberto>
   <Linguagem>Basic</Linguagem>
   <Engine>PaxCompiler</Engine>
   <Modulos>
@@ -90,6 +91,8 @@ Dim MemoDadosAdicionais             As MemoTextBox
 Dim LabelMensagem                   As StaticText
 Dim MemoMensagem                    As MemoTextBox
 Dim EditMensagem                    As SearchTextBox
+Dim EditCodigoOriginal              As String
+Dim EditUnidadeMedida               As String
 
 Sub Inicializar()
     TelaPrincipal = New FormButtons()
@@ -463,9 +466,9 @@ Sub Inicializar()
     LabelEditValorTotalMarcado.Font.Bold = True
     LabelEditValorTotalMarcado.Font.Color = RGB(0, 0, 255)
 
-    TelaPrincipal.Show()
 
     TelaPrincipal.btnOK.OnClick = Eventos.BotaoGravaTudo
+    TelaPrincipal.Show()
 End Sub
 
 Sub Finalizar()
@@ -483,83 +486,99 @@ End Namespace</Codigo>
 Namespace Processos
 
 ' Procedimento para preenchimento da grade
-Sub CarregaProduto(pCodModelo As Integer, pCodGrupoManutencao As Integer)
-   Dim Query As SQL.Command = New SQL.Command
-   Query.CommandText = +_
-        " SELECT Produto.CodProduto,                                                                               " +_
-        " 	     Produto.CodigoOriginal,                                                                           " +_
-        " 	     Produto.Nome,                                                                                     " +_
-        " 	     Produto.PrecoVenda,                                                                               " +_
-        "        Produto.CodUnidadeMedida,                                                                         " +_
-        "        Produto.CodTipoProduto,                                                                           " +_
-        " 	     Estrutura.Quantidade,                                                                             " +_
-        " 	     Estrutura.ValorUnitario                                                                           " +_
-        "   FROM dbo.Produto Produto                                                                               " +_
-        "   JOIN Customizado.EstruturaModeloGrupoManutencao Estrutura ON Estrutura.CodProduto = Produto.CodProduto " +_
-        "   JOIN Customizado.GrupoManutencao Grupo ON Grupo.ID = Estrutura.CodGrupoManutencao                      " +_
-        "  WHERE Estrutura.CodModelo = :CodModelo                                                                  "
-   If pCodGrupoManutencao &lt;&gt; 0 Then
-      Query.CommandText = Query.CommandText + "AND Estrutura.CodGrupoManutencao = :CodGrupoManutencao"
-   End If
-   Query.Param("CodModelo").AsInteger = pCodModelo
+Sub CarregaProduto()
+    Dim Query As SQL.Command = New SQL.Command
+    Query.CommandText = +_
+         " SELECT Produto.CodProduto,                                                                               " +_
+         " 	      Produto.CodigoOriginal,                                                                           " +_
+         " 	      Produto.Nome,                                                                                     " +_
+         " 	      Produto.PrecoVenda,                                                                               " +_
+         "        Produto.CodUnidadeMedida,                                                                         " +_
+         "        Produto.CodTipoProduto,                                                                           " +_
+         " 	      Estrutura.Quantidade,                                                                             " +_
+         " 	      Estrutura.ValorUnitario                                                                           " +_
+         "   FROM dbo.Produto Produto                                                                               " +_
+         "   JOIN Customizado.EstruturaModeloGrupoManutencao Estrutura ON Estrutura.CodProduto = Produto.CodProduto " +_
+         "   JOIN Customizado.GrupoManutencao Grupo ON Grupo.ID = Estrutura.CodGrupoManutencao                      " +_
+         "  WHERE Estrutura.CodModelo = :CodModelo                                                                  "
 
-   If pCodGrupoManutencao &lt;&gt; 0 Then
-      Query.Param("CodGrupoManutencao").AsInteger = pCodGrupoManutencao
-   End If
+    If EditGrupoManutencao.Text &lt;&gt; "" Then
+       Query.CommandText = Query.CommandText + "AND Estrutura.CodGrupoManutencao = :CodGrupoManutencao"
+       Query.Param("CodGrupoManutencao").AsInteger = CInt(EditGrupoManutencao.Text)
+    End If
 
-   Query.Open
-   CarregaProdutoNaGrade(Query)
-   Query.Free
-   ContadorItensMarcados()
-   SomaItensMarcados()
+    If EditRefMotor.Text &lt;&gt; "" Then
+       Query.CommandText = Query.CommandText + "AND Produto.CodigoOriginal = :CodigoOriginal"
+       Query.Param("CodigoOriginal").AsInteger = CInt(EditRefMotor.Text)
+    End If
+
+    Query.Param("CodModelo").AsInteger = CInt(EditModelo.Text)
+
+    Query.Open
+    If Query.RecordCount &lt; 1 Then
+       Forms.MessageBox.Show("Modelo sem itens cadastrados. Verifique!")
+    Else
+       CarregaProdutoNaGrade(Query)
+       ContadorItensMarcados()
+       SomaItensMarcados()
+    End if
+    Query.Free
 End Sub
 
 Sub CarregaProdutoNaGrade(pQuery As SQL.Command)
-   While Not pQuery.EoF
-      If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
-         Grade.AddRow
-      End If
-      Grade.Cells[Col_CodigoInterno, Grade.RowCount -1] = pQuery.Field("CodProduto").AsString
-      Grade.Cells[Col_CodigoOriginal, Grade.RowCount -1] = pQuery.Field("CodigoOriginal").AsString
-      Grade.Cells[Col_Descricao, Grade.RowCount -1] = pQuery.Field("Nome").AsString
-      Grade.Cells[Col_Quantidade, Grade.RowCount -1] = pQuery.Field("Quantidade").AsFloat.ToString(",0.00")
-      Grade.Cells[Col_UM, Grade.RowCount -1] = pQuery.Field("CodUnidadeMedida").AsString
-      If pQuery.Field("ValorUnitario").AsFloat &lt;= 0
-         Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = pQuery.Field("PrecoVenda").AsFloat.ToString(",0.00")
-      Else
-         Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = pQuery.Field("ValorUnitario").AsFloat.ToString(",0.00")
-      End If
-      Grade.Cells[Col_PrecoTotal, Grade.RowCount -1] = CDbl(pQuery.Field("Quantidade").AsFloat * pQuery.Field("ValorUnitario").AsFloat).ToString(",0.00")
-      Grade.Cells[Col_TipoProduto, Grade.RowCount -1] = pQuery.Field("CodTipoProduto").AsString
-      pQuery.Next
-   End While
+    While Not pQuery.EoF
+          If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
+             Grade.AddRow
+          End If
+          Grade.Cells[Col_CodigoInterno, Grade.RowCount -1] = pQuery.Field("CodProduto").AsString
+          Grade.Cells[Col_CodigoOriginal, Grade.RowCount -1] = pQuery.Field("CodigoOriginal").AsString
+          Grade.Cells[Col_Descricao, Grade.RowCount -1] = pQuery.Field("Nome").AsString
+          Grade.Cells[Col_Quantidade, Grade.RowCount -1] = pQuery.Field("Quantidade").AsFloat.ToString(",0.00")
+          Grade.Cells[Col_UM, Grade.RowCount -1] = pQuery.Field("CodUnidadeMedida").AsString
+          If pQuery.Field("ValorUnitario").AsFloat &lt;= 0
+             Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = pQuery.Field("PrecoVenda").AsFloat.ToString(",0.00")
+             Grade.Cells[Col_PrecoTotal, Grade.RowCount -1] = CDbl(pQuery.Field("Quantidade").AsFloat * pQuery.Field("PrecoVenda").AsFloat).ToString(",0.00")
+          Else
+             Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = pQuery.Field("ValorUnitario").AsFloat.ToString(",0.00")
+             Grade.Cells[Col_PrecoTotal, Grade.RowCount -1] = CDbl(pQuery.Field("Quantidade").AsFloat * pQuery.Field("ValorUnitario").AsFloat).ToString(",0.00")
+          End If
+          Grade.Cells[Col_TipoProduto, Grade.RowCount -1] = pQuery.Field("CodTipoProduto").AsString
+          pQuery.Next
+    End While
 End Sub
 
+'Procedimento responsável por buscar no banco de dados, informações de produtos
+'que são inseridos manualmente
 Sub BuscaDadosProduto(pCodProduto As Integer)
    Dim Query_BuscaDadosProduto As SQL.Command = New SQL.Command
    Query_BuscaDadosProduto.CommandText = +_
         "SELECT Produto.CodProduto,              " +_
         "       Produto.CodigoOriginal,          " +_
-        "       Produto.PrecoVenda               " +_
+        "       Produto.PrecoVenda,              " +_
+        "       Produto.CodUnidadeMedida         " +_
         "  FROM dbo.Produto                      " +_
         " WHERE Produto.CodProduto = :CodProduto "
 
    Query_BuscaDadosProduto.Param("CodProduto").AsInteger = pCodProduto
    Query_BuscaDadosProduto.Open
    EditPrecoUnitario.Value = Query_BuscaDadosProduto.Field("PrecoVenda").AsFloat
-   'EditCodigoOriginal.Value = Query_BuscaDadosProduto.Field("CodigoOriginal").AsFloat
+   EditCodigoOriginal = Query_BuscaDadosProduto.Field("CodigoOriginal").AsString
+   EditUnidadeMedida = Query_BuscaDadosProduto.Field("CodUnidadeMedida").AsString
+   Forms.MessageBox.Show(EditCodigoOriginal)
    Query_BuscaDadosProduto.Free
 End Sub
 
+'Procedimento responsável por inserir produtos manualmente na grade
 Sub InsereProdutoNaGrade()
    If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
       Grade.AddRow
    End If 
    Grade.Cells[Col_Selecao, Grade.RowCount -1] = vCaractereMarcado
    Grade.Cells[Col_CodigoInterno, Grade.RowCount -1] = EditProduto.Text
-   'Grade.Cells[Col_CodigoOriginal, Grade.RowCount -1] =
+   Grade.Cells[Col_CodigoOriginal, Grade.RowCount -1] = EditCodigoOriginal
    Grade.Cells[Col_Descricao, Grade.RowCount -1] = MemoProduto.Lines.Text
    Grade.Cells[Col_Quantidade, Grade.RowCount -1] = EditQuantidade.Value.ToString(",0.00")
+   Grade.Cells[Col_UM, Grade.RowCount -1] = EditUnidadeMedida
    Grade.Cells[Col_PrecoUnitario, Grade.RowCount -1] = EditPrecoUnitario.Value.ToString(",0.00")
    Grade.Cells[Col_PrecoTotal, Grade.RowCount -1] = CDbl(EditQuantidade.Value * EditPrecoUnitario.Value).ToString(",0.00")
    AtualizaOrdemGrade(Grade, Col_Item)
@@ -568,11 +587,12 @@ Sub InsereProdutoNaGrade()
 End Sub
 
 Sub AtualizaOrdemGrade(pGrade As Forms.Grid, pColuna As Integer)
-  Dim contador As Integer = 1
-   While contador &lt; pGrade.RowCount
-     pGrade.Cells[pColuna, contador] = CStr(contador)
-     contador = contador + 1
-   End While
+    Dim Contador As Integer = 1
+
+    While Contador &lt; pGrade.RowCount
+          pGrade.Cells[pColuna, Contador] = CStr(Contador)
+          Contador = Contador + 1
+    End While
 End Sub
 
 Sub ContadorItensMarcados()
@@ -818,12 +838,14 @@ Sub GravaOrcamento()
           "             :QtdeItens,                                 " +_
           "             :QtdePecas)                                 "
 
+   vProximoCodigo = Data7.ProximoCodigo("dbo.OrcamentoBalcao",Data7.CodEmpresa())
+
    Query_GravaOrcamento.Param("CodEmpresa").AsInteger = vCodEmpresa
    Query_GravaOrcamento.Param("CodFilial").AsInteger = vCodFilial
-   Query_GravaOrcamento.Param("CodOrcamento").AsInteger = Data7.ProximoCodigo("dbo.OrcamentoBalcao",Data7.CodEmpresa())
+   Query_GravaOrcamento.Param("CodOrcamento").AsInteger = vProximoCodigo
    Query_GravaOrcamento.Param("CodVendedor").AsInteger = CInt(EditVendedor.Text)
    Query_GravaOrcamento.Param("CodCliente").AsInteger = CInt(EditCliente.Text)
-   Query_GravaOrcamento.Param("DataDigitacao").AsDate = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
+   Query_GravaOrcamento.Param("DataDigitacao").AsString = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
    Query_GravaOrcamento.Param("VendaEfetuada").AsString = "N"
    Query_GravaOrcamento.Param("PesoLiquido").AsFloat = 0
    Query_GravaOrcamento.Param("PesoBruto").AsFloat = 0
@@ -841,11 +863,13 @@ Sub GravaOrcamento()
    Query_GravaOrcamento.Param("TotalMercadoria").AsFloat = SomaProdutos()
    Query_GravaOrcamento.Param("UsuarioAbertura").AsString = vNomeUsuario
    Query_GravaOrcamento.Param("EstacaoTrabalhoAbertura").AsString = vNomeEstacao
-   Query_GravaOrcamento.Param("CodMensagem").AsInteger = CInt(EditMensagem.Text)
+   If EditMensagem.Text &lt;&gt; "" Then
+      Query_GravaOrcamento.Param("CodMensagem").AsInteger = CInt(EditMensagem.Text)
+   End If
    Query_GravaOrcamento.Param("Observacao").AsString = MemoObservacao.Lines.Text
    Query_GravaOrcamento.Param("PercentualDescontoProduto").AsFloat = 0
    Query_GravaOrcamento.Param("PercentualDescontoServico").AsFloat = 0
-   Query_GravaOrcamento.Param("DataInclusao").AsDate = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
+   Query_GravaOrcamento.Param("DataInclusao").AsString = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
    Query_GravaOrcamento.Param("HoraInclusao").AsString = DateUtils.ToStringFormat("HH:MM", DateTime())
    Query_GravaOrcamento.Param("ValorLivre1").AsFloat = 0
    Query_GravaOrcamento.Param("ValorLivre2").AsFloat = 0
@@ -893,8 +917,8 @@ Sub GravaOrcamento()
    Query_GravaOrcamento.Param("ValorDescontoServicoTotal2").AsFloat = 0
    Query_GravaOrcamento.Param("PercentualDescontoServicoTotal1").AsFloat = 0
    Query_GravaOrcamento.Param("PercentualDescontoServicoTotal2").AsFloat = 0
-   Query_GravaOrcamento.Param("QtdeItens").AsInteger = CInt(LabelQuantidadeItensMarcados.Text)
-   Query_GravaOrcamento.Param("QtdePecas").AsFloat = SomaQuantidadePecas()
+   Query_GravaOrcamento.Param("QtdeItens").AsInteger = 1'CInt(LabelQuantidadeItensMarcados.Text)
+   Query_GravaOrcamento.Param("QtdePecas").AsFloat = 1'SomaQuantidadePecas()
 
    Query_GravaOrcamento.ExecSQL()
    Query_GravaOrcamento.Free()
@@ -1034,7 +1058,7 @@ Sub GravaItemOrcamento()
           "             :PercentualReducaoIcmsOrigem)               "
 
           Query_GravaItemOrcamento.Param("CodEmpresa").AsInteger = vCodEmpresa
-          Query_GravaItemOrcamento.Param("CodOrcamento").AsInteger = vCodFilial
+          Query_GravaItemOrcamento.Param("CodOrcamento").AsInteger = vProximoCodigo
           Query_GravaItemOrcamento.Param("Item").AsInteger = CInt(Grade.Cells[Col_Item, Contador])
           Query_GravaItemOrcamento.Param("CodProduto").AsInteger = CInt(Grade.Cells[Col_CodigoInterno, Contador])
           Query_GravaItemOrcamento.Param("Quantidade").AsFloat = CDbl(Grade.Cells[Col_Quantidade, Contador])
@@ -1095,9 +1119,11 @@ Sub GravaItemOrcamento()
           Query_GravaItemOrcamento.Param("IndexadorPreco").AsFloat = 1
           Query_GravaItemOrcamento.Param("TipoIndexadorPreco").AsString = "M"
           Query_GravaItemOrcamento.Param("PercentualReducaoIcmsOrigem").AsFloat = 0
+          Query_GravaItemOrcamento.ExecSQL()
 
           Contador = Contador + 1
     End While
+    Query_GravaItemOrcamento.Free()
 End Sub
 End Namespace</Codigo>
       <Linguagem>Basic</Linguagem>
@@ -1108,12 +1134,6 @@ End Namespace</Codigo>
       <Codigo>Imports Forms
 Imports FormularioPrincipal
 Imports Processos
-
-Dim Eventos As TEventos
-
-Sub EventosInicializar()
-    Eventos = New TEventos()
-End sub
 
 Class TEventos
 
@@ -1138,6 +1158,7 @@ Sub MarcaItemGrade(Sender As TObject)
     Processos.ContadorItensMarcados()
     Processos.SomaItensMarcados()
     Processos.SomaItens()
+    Processos.AtualizaOrdemGrade(Grade, Col_Item)
 End Sub
 
 'Procedimento para verificação dos campos obrigatórios para filtro
@@ -1182,16 +1203,10 @@ End Sub
 
 Sub OnClickBotaoSelecionar(Sender As CommandButton)
     VerificaParametrosObrigatorios()
-    MarcaItemGrade(FormularioPrincipal.ButSelecionar)
-    If EditGrupoManutencao.Text = "" Then
-       Processos.CarregaProduto(CInt(EditModelo.Text), 0)
-    Else
-       Processos.CarregaProduto(CInt(EditModelo.Text), CInt(EditGrupoManutencao.Text))
-    End If
+    Processos.CarregaProduto()
     ContagemItensLancados()
     Processos.SomaItens()
-    'Grade.Cells[Col_Selecao, Grade.Row] = vCaractereMarcado
-
+    Processos.SomaItensMarcados()
 End Sub
 
 Sub OnExitPesquisaProduto(Sender As TObject)
@@ -1303,21 +1318,22 @@ End Sub
 'Procedimento responsável por iniciar e finalizar as instruções SQL de
 'inserção de registros
 Sub BotaoGravaTudo(Sender As TObject)
-   SQL.Connection.StartTransaction()
-   GravaOrcamento()
-   GravaItemOrcamento()
-   SQL.Connection.Commit()
+    Try
+       SQL.Connection.StartTransaction()
+       GravaOrcamento()
+       GravaItemOrcamento()
+       SQL.Connection.Commit("Orçamento salvo com sucesso")
+    Catch ex As Exception
+       SQL.Connection.Rollback()
+       Forms.MessageBox.Show(ex._GetMessage())
+    End Try
 End Sub
 
 Sub OnClickOkFormularioPrincipal(Sender As TObject)
    FormularioPrincipal.Finalizar()
 End Sub
 
-End Class
-
-Sub EventosFinalizar()
-    Eventos.Free()
-End Sub</Codigo>
+End Class</Codigo>
       <Linguagem>Basic</Linguagem>
       <Aberto>true</Aberto>
       <OrdemAbertura>3</OrdemAbertura>
