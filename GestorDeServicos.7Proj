@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Projeto_Data7 xmlns="http://www.se7esistemas.com.br/Data7DevStudio" Versão="1.0">
   <Nome>Principal</Nome>
-  <Data>03/06/2019 17:48:05</Data>
+  <Data>04/06/2019 09:44:53</Data>
   <Codigo>Dim Eventos As TEventos = New TEventos()
-Dim vLinhaEdicao           As Integer
-Dim vCodEmpresa            As Integer = Data7.CodEmpresa()
-Dim vCodFilial             As Integer = Data7.CodFilial()
-Dim vProximoCodigo         As Integer = 0
-Dim vNomeUsuario           As String = Data7.NomeUsuario()
-Dim vNomeEstacao           As String = Environment.MachineName
+Dim vLinhaEdicao              As Integer
+Dim vCodEmpresa               As Integer = Data7.CodEmpresa()
+Dim vCodFilial                As Integer = Data7.CodFilial()
+Dim vProximoCodigo            As Integer = 0
+Dim vNomeUsuario              As String = Data7.NomeUsuario()
+Dim vNomeEstacao              As String = Environment.MachineName
+Dim vCodTipoOperacaoSaida     As Integer = 1
+Dim vCodLocalArmazenagem      As Integer = 0
+Dim vCodTES                   As Integer = 0
+Dim vCFOP                     As String = "5102"
+Dim vPrecoUtilizado           As String = "PV"
+Dim vCodTipoMovimentoEstoque  As Integer = 0
 
-Const vCaractereMarcado    As Char = "√"
-Const Col_Selecao          As Integer = 0
-Const Col_Item             As Integer = 1
-Const Col_CodigoInterno    As Integer = 2
-Const Col_CodigoOriginal   As Integer = 3
-Const Col_Descricao        As Integer = 4
-Const Col_Quantidade       As Integer = 5
-Const Col_UM               As Integer = 6
-Const Col_PrecoUnitario    As Integer = 7
-Const Col_PrecoTotal       As Integer = 8
-Const Col_TipoProduto      As Integer = 9
+Const vCaractereMarcado       As Char = "√"
+Const Col_Selecao             As Integer = 0
+Const Col_Item                As Integer = 1
+Const Col_CodigoInterno       As Integer = 2
+Const Col_CodigoOriginal      As Integer = 3
+Const Col_Descricao           As Integer = 4
+Const Col_Quantidade          As Integer = 5
+Const Col_UM                  As Integer = 6
+Const Col_PrecoUnitario       As Integer = 7
+Const Col_PrecoTotal          As Integer = 8
+Const Col_TipoProduto         As Integer = 9
 
 FormularioPrincipal.Inicializar()
 Eventos.Free()
 FormularioPrincipal.Finalizar()</Codigo>
   <Aberto>true</Aberto>
   <OrdemAbertura>0</OrdemAbertura>
-  <ItemAberto>2</ItemAberto>
+  <ItemAberto>1</ItemAberto>
   <Linguagem>Basic</Linguagem>
   <Engine>PaxCompiler</Engine>
   <Modulos>
@@ -466,7 +472,6 @@ Sub Inicializar()
     LabelEditValorTotalMarcado.Font.Bold = True
     LabelEditValorTotalMarcado.Font.Color = RGB(0, 0, 255)
 
-
     TelaPrincipal.btnOK.OnClick = Eventos.BotaoGravaTudo
     TelaPrincipal.Show()
 End Sub
@@ -482,10 +487,10 @@ End Namespace</Codigo>
     </FormularioPrincipal>
     <Processos>
       <Codigo>Imports FormularioPrincipal
-
 Namespace Processos
 
-' Procedimento para preenchimento da grade
+'Procedimento responsável por selecionar os produtos em conformidade com os filtros
+'definidos no painel de parâmetros
 Sub CarregaProduto()
     Dim Query As SQL.Command = New SQL.Command
     Query.CommandText = +_
@@ -525,6 +530,7 @@ Sub CarregaProduto()
     Query.Free
 End Sub
 
+'Procedimento responsável por inserir produtos na grade
 Sub CarregaProdutoNaGrade(pQuery As SQL.Command)
     While Not pQuery.EoF
           If Grade.Cells[Col_CodigoInterno, 1] &lt;&gt; ""
@@ -564,7 +570,6 @@ Sub BuscaDadosProduto(pCodProduto As Integer)
    EditPrecoUnitario.Value = Query_BuscaDadosProduto.Field("PrecoVenda").AsFloat
    EditCodigoOriginal = Query_BuscaDadosProduto.Field("CodigoOriginal").AsString
    EditUnidadeMedida = Query_BuscaDadosProduto.Field("CodUnidadeMedida").AsString
-   Forms.MessageBox.Show(EditCodigoOriginal)
    Query_BuscaDadosProduto.Free
 End Sub
 
@@ -586,6 +591,7 @@ Sub InsereProdutoNaGrade()
    SomaItensMarcados()
 End Sub
 
+'Procedimento responsável por atualizar a ordem dos produtos na grade
 Sub AtualizaOrdemGrade(pGrade As Forms.Grid, pColuna As Integer)
     Dim Contador As Integer = 1
 
@@ -595,6 +601,7 @@ Sub AtualizaOrdemGrade(pGrade As Forms.Grid, pColuna As Integer)
     End While
 End Sub
 
+'Procedimento responsável por contar a quantidade de itens marcados
 Sub ContadorItensMarcados()
   Dim contador As Integer = 1
   Dim qtdItensSelecionados As Integer = 0
@@ -677,6 +684,20 @@ Function SomaQuantidadePecas() As Double
     End While
     Return QuantidadePecas
 End Function
+
+'Procedimento responsável por verificar os campos de preenchimento obrigatório
+'para inclusão dos registros no banco de dados
+Sub VerificaCamposObrigatoriosParaSalvarRegistrosNoBanco()
+    If LabelValorTotalMarcado.Text = "0,00" Then
+       Forms.MessageBox.Show("É obrigatório informar ao menos um item para salvar o orçamento.")
+    Elseif EditCliente.Text = "" Then
+       Forms.MessageBox.Show("É obrigatório informar um cliente para salvar o orçamento.")
+    Elseif EditCondicaoPagamento.Text = "" Then
+       Forms.MessageBox.Show("É obrigatório informar uma condição de pagamento para salvar o orçamento.")
+    Elseif EditVendedor.Text = "" Then
+       Forms.MessageBox.Show("É obrigatório informar um vendedor para salvar o orçamento.")
+    End If
+End Sub
 
 'Procedimento responsável por gravar o orçamento lançado no banco de dados
 Sub GravaOrcamento()
@@ -917,17 +938,45 @@ Sub GravaOrcamento()
    Query_GravaOrcamento.Param("ValorDescontoServicoTotal2").AsFloat = 0
    Query_GravaOrcamento.Param("PercentualDescontoServicoTotal1").AsFloat = 0
    Query_GravaOrcamento.Param("PercentualDescontoServicoTotal2").AsFloat = 0
-   Query_GravaOrcamento.Param("QtdeItens").AsInteger = 1'CInt(LabelQuantidadeItensMarcados.Text)
-   Query_GravaOrcamento.Param("QtdePecas").AsFloat = 1'SomaQuantidadePecas()
+   Query_GravaOrcamento.Param("QtdeItens").AsInteger = CInt(LabelContadorMarcados.Text)
+   Query_GravaOrcamento.Param("QtdePecas").AsFloat = SomaQuantidadePecas()
 
    Query_GravaOrcamento.ExecSQL()
    Query_GravaOrcamento.Free()
-end Sub
+End Sub
+
+'Procedimento responsável por buscar informações da tabela de tipo de operação de saída
+'para serem salvas posteriormente com os itens do gestor de serviços
+Sub BuscaInformacoesTipoOperacaoSaida()
+   Dim Query_BuscaInformacoesTipoOperacaoSaida As SQL.Command = New SQL.Command
+   Query_BuscaInformacoesTipoOperacaoSaida.CommandText = +_
+        "SELECT CodLocalArmazenagem,                         " +_
+        "       TOS.CodTes AS CodTes,                        " +_
+	     "       Tes.CodNaturezaOperacao AS CFOP,             " +_
+	     "       PrecoUtilizado,                              " +_
+	     "       CodTipoMovimentoEstoque                      " +_
+        "  FROM TipoOperacaoSaida AS TOS                     " +_
+        " INNER JOIN Tes ON (Tes.CodTes = TOS.CodTes)        " +_
+        " WHERE CodTipoOperacaoSaida = :CodTipoOperacaoSaida "
+
+   Query_BuscaInformacoesTipoOperacaoSaida.Param("CodTipoOperacaoSaida").AsInteger = vCodTipoOperacaoSaida
+   Query_BuscaInformacoesTipoOperacaoSaida.Open
+
+   vCodLocalArmazenagem = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodLocalArmazenagem").AsInteger
+   vCodTES = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodTes").AsInteger
+   vCFOP = Query_BuscaInformacoesTipoOperacaoSaida.Field("CFOP").AsString
+   vPrecoUtilizado = Query_BuscaInformacoesTipoOperacaoSaida.Field("PrecoUtilizado").AsString
+   vCodTipoMovimentoEstoque = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodTipoMovimentoEstoque").AsInteger
+
+   Query_BuscaInformacoesTipoOperacaoSaida.Free
+End Sub
 
 'Procedimento responsável por gravar os itens do orçamento lançados no banco de dados
 Sub GravaItemOrcamento()
     Dim Query_GravaItemOrcamento As SQL.Command = New SQL.Command()
     Dim Contador As Integer = 1
+
+    BuscaInformacoesTipoOperacaoSaida()
 
     While (Contador &lt; Grade.RowCount) And (Grade.Cells[Col_Selecao, Contador] = vCaractereMarcado)
           Query_GravaItemOrcamento.CommandText = +_
@@ -1065,11 +1114,11 @@ Sub GravaItemOrcamento()
           Query_GravaItemOrcamento.Param("QtdDevolvida").AsFloat = 0
           Query_GravaItemOrcamento.Param("PrecoUnitario").AsFloat = CDbl(Grade.Cells[Col_PrecoUnitario, Contador])
           Query_GravaItemOrcamento.Param("ValorDesconto").AsFloat = 0
-          Query_GravaItemOrcamento.Param("CodLocalArmazenagem").AsInteger = 1 'verificar
+          Query_GravaItemOrcamento.Param("CodLocalArmazenagem").AsInteger = vCodLocalArmazenagem
           Query_GravaItemOrcamento.Param("CodVendedor").AsInteger = CInt(EditVendedor.Text)
           Query_GravaItemOrcamento.Param("PrecoTabela").AsFloat = Query_GravaItemOrcamento.Param("PrecoUnitario").AsFloat
-          Query_GravaItemOrcamento.Param("CodTES").AsInteger = 506 'verificar
-          Query_GravaItemOrcamento.Param("CFOP").AsString = "5102" 'verificar
+          Query_GravaItemOrcamento.Param("CodTES").AsInteger = vCodTES
+          Query_GravaItemOrcamento.Param("CFOP").AsString = vCFOP
           Query_GravaItemOrcamento.Param("ValorICMS").AsFloat = Query_GravaItemOrcamento.Param("PrecoUnitario").AsFloat
           Query_GravaItemOrcamento.Param("ValorISS").AsFloat = 0
           Query_GravaItemOrcamento.Param("ValorIPI").AsFloat = 0
@@ -1100,12 +1149,12 @@ Sub GravaItemOrcamento()
           Query_GravaItemOrcamento.Param("PercentualAcrescimoTotal2").AsFloat = 0
           Query_GravaItemOrcamento.Param("PercentualAcrescimo").AsFloat = 0
           Query_GravaItemOrcamento.Param("PercentualDesconto").AsFloat = 0
-          Query_GravaItemOrcamento.Param("PrecoUtilizado").AsString = "PV" 'verificar
+          Query_GravaItemOrcamento.Param("PrecoUtilizado").AsString = vPrecoUtilizado
           Query_GravaItemOrcamento.Param("PercentualDescontoPadrao").AsFloat = 0
           Query_GravaItemOrcamento.Param("ValorDescontoPadrao").AsFloat = 0
-          Query_GravaItemOrcamento.Param("CodTipoMovimentoEstoque").AsInteger = 1 'verificar
-          Query_GravaItemOrcamento.Param("FatorConversao").AsFloat = 1 'verificar
-          Query_GravaItemOrcamento.Param("TipoFatorConversao").AsString = "M" 'verificar
+          Query_GravaItemOrcamento.Param("CodTipoMovimentoEstoque").AsInteger = vCodTipoMovimentoEstoque
+          Query_GravaItemOrcamento.Param("FatorConversao").AsFloat = 1
+          Query_GravaItemOrcamento.Param("TipoFatorConversao").AsString = "M"
           Query_GravaItemOrcamento.Param("CodUnidadeMedida").AsString = Grade.Cells[Col_UM, Contador]
           Query_GravaItemOrcamento.Param("QuantidadeConvertida").AsFloat = CDbl(Grade.Cells[Col_Quantidade, Contador])
           Query_GravaItemOrcamento.Param("Status").AsString = "A"
@@ -1196,11 +1245,12 @@ Sub LimparTela (Sender As TObject)
     LabelContador.Text = "0"
 End Sub
 
-'Procedimento que calcula o valor total do produto
+'Procedimento responsável por calcular o valor total do produto
 Sub CalculaPrecoTotalProduto (Sender As TObject)
     EditPrecoTotal.Value = (EditQuantidade.Value * EditPrecoUnitario.Value)
 End Sub
 
+'Procedimento responsável pela ação do botão "Selecionar"
 Sub OnClickBotaoSelecionar(Sender As CommandButton)
     VerificaParametrosObrigatorios()
     Processos.CarregaProduto()
@@ -1209,6 +1259,7 @@ Sub OnClickBotaoSelecionar(Sender As CommandButton)
     Processos.SomaItensMarcados()
 End Sub
 
+'Procedimento responsável por preencher um valor padrão ao campo de quantidade
 Sub OnExitPesquisaProduto(Sender As TObject)
    If EditProduto.Text &lt;&gt; "" Then
       Processos.BuscaDadosProduto(CInt(EditProduto.Text))
@@ -1255,7 +1306,7 @@ Sub RemoveProdutosGrade (Sender As TObject)
     Processos.SomaItens()
 End Sub
 
-' Procedimento responsável pela alteração do nome do botão Alterar
+'Procedimento responsável pela alteração do nome do botão Alterar
 Sub AlteraNomeBotaoAlterar()
     ButAlterar.Text = "&amp;Atualizar"
 End Sub
@@ -1318,6 +1369,7 @@ End Sub
 'Procedimento responsável por iniciar e finalizar as instruções SQL de
 'inserção de registros
 Sub BotaoGravaTudo(Sender As TObject)
+    Processos.VerificaCamposObrigatoriosParaSalvarRegistrosNoBanco()
     Try
        SQL.Connection.StartTransaction()
        GravaOrcamento()
