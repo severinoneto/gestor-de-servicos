@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Projeto_Data7 xmlns="http://www.se7esistemas.com.br/Data7DevStudio" Versão="1.0">
   <Nome>Principal</Nome>
-  <Data>04/06/2019 13:31:14</Data>
+  <Data>04/06/2019 13:50:08</Data>
   <Codigo>Dim Eventos As TEventos = New TEventos()
 Dim vLinhaEdicao              As Integer
 Dim vCodEmpresa               As Integer = Data7.CodEmpresa()
@@ -703,9 +703,37 @@ Sub VerificaCamposObrigatoriosParaSalvarRegistrosNoBanco()
     End If
 End Sub
 
+'Procedimento responsável por buscar informações da tabela de tipo de operação de saída
+'para serem salvas posteriormente com os itens do gestor de serviços
+Sub BuscaInformacoesTipoOperacaoSaida()
+   Dim Query_BuscaInformacoesTipoOperacaoSaida As SQL.Command = New SQL.Command
+   Query_BuscaInformacoesTipoOperacaoSaida.CommandText = +_
+        "SELECT CodLocalArmazenagem,                         " +_
+        "       TOS.CodTes AS CodTes,                        " +_
+	     "       Tes.CodNaturezaOperacao AS CFOP,             " +_
+	     "       PrecoUtilizado,                              " +_
+	     "       CodTipoMovimentoEstoque                      " +_
+        "  FROM TipoOperacaoSaida AS TOS                     " +_
+        " INNER JOIN Tes ON (Tes.CodTes = TOS.CodTes)        " +_
+        " WHERE CodTipoOperacaoSaida = :CodTipoOperacaoSaida "
+
+   Query_BuscaInformacoesTipoOperacaoSaida.Param("CodTipoOperacaoSaida").AsInteger = vCodTipoOperacaoSaida
+   Query_BuscaInformacoesTipoOperacaoSaida.Open
+
+   vCodLocalArmazenagem = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodLocalArmazenagem").AsInteger
+   vCodTES = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodTes").AsInteger
+   vCFOP = Query_BuscaInformacoesTipoOperacaoSaida.Field("CFOP").AsString
+   vPrecoUtilizado = Query_BuscaInformacoesTipoOperacaoSaida.Field("PrecoUtilizado").AsString
+   vCodTipoMovimentoEstoque = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodTipoMovimentoEstoque").AsInteger
+
+   Query_BuscaInformacoesTipoOperacaoSaida.Free
+End Sub
+
 'Procedimento responsável por gravar o orçamento lançado no banco de dados
 Sub GravaOrcamento()
     Dim Query_GravaOrcamento As SQL.Command = New SQL.Command()
+    BuscaInformacoesTipoOperacaoSaida()
+
     Query_GravaOrcamento.CommandText = +_
           "INSERT INTO dbo.OrcamentoBalcao                          " +_
           "            (CodEmpresa,                                 " +_
@@ -720,6 +748,7 @@ Sub GravaOrcamento()
           "             ValorFrete,                                 " +_
           "             ValorSeguroFrete,                           " +_
           "             ValorDespesaFrete,                          " +_
+          "             FretePorConta,                              " +_
           "             CodCondicaoPagamento,                       " +_
           "             TaxaJuro,                                   " +_
           "             TaxaDesconto,                               " +_
@@ -740,6 +769,7 @@ Sub GravaOrcamento()
           "             ValorLivre1,                                " +_
           "             ValorLivre2,                                " +_
           "             ValorLivre3,                                " +_
+          "             CodTipoOperacaoSaida,                       " +_
           "             ValorAcrescimo,                             " +_
           "             ValorDescontoCondicaoPagamento,             " +_
           "             ValorAcrescimoCondicaoPagamento,            " +_
@@ -797,6 +827,7 @@ Sub GravaOrcamento()
           "             :ValorFrete,                                " +_
           "             :ValorSeguroFrete,                          " +_
           "             :ValorDespesaFrete,                         " +_
+          "             :FretePorConta,                             " +_
           "             :CodCondicaoPagamento,                      " +_
           "             :TaxaJuro,                                  " +_
           "             :TaxaDesconto,                              " +_
@@ -817,6 +848,7 @@ Sub GravaOrcamento()
           "             :ValorLivre1,                               " +_
           "             :ValorLivre2,                               " +_
           "             :ValorLivre3,                               " +_
+          "             :CodTipoOperacaoSaida,                      " +_
           "             :ValorAcrescimo,                            " +_
           "             :ValorDescontoCondicaoPagamento,            " +_
           "             :ValorAcrescimoCondicaoPagamento,           " +_
@@ -885,6 +917,7 @@ Sub GravaOrcamento()
    Query_GravaOrcamento.Param("ValorFrete").AsFloat = 0
    Query_GravaOrcamento.Param("ValorSeguroFrete").AsFloat = 0
    Query_GravaOrcamento.Param("ValorDespesaFrete").AsFloat = 0
+   Query_GravaOrcamento.Param("FretePorConta").AsString = "S"
    Query_GravaOrcamento.Param("CodCondicaoPagamento").AsString = EditCondicaoPagamento.Text
    Query_GravaOrcamento.Param("TaxaJuro").AsFloat = 0
    Query_GravaOrcamento.Param("TaxaDesconto").AsFloat = 0
@@ -907,6 +940,7 @@ Sub GravaOrcamento()
    Query_GravaOrcamento.Param("ValorLivre1").AsFloat = 0
    Query_GravaOrcamento.Param("ValorLivre2").AsFloat = 0
    Query_GravaOrcamento.Param("ValorLivre3").AsFloat = 0
+   Query_GravaOrcamento.Param("CodTipoOperacaoSaida").AsInteger = vCodTipoOperacaoSaida
    Query_GravaOrcamento.Param("ValorAcrescimo").AsFloat = 0
    Query_GravaOrcamento.Param("ValorDescontoCondicaoPagamento").AsFloat = 0
    Query_GravaOrcamento.Param("ValorAcrescimoCondicaoPagamento").AsFloat = 0
@@ -955,32 +989,6 @@ Sub GravaOrcamento()
 
    Query_GravaOrcamento.ExecSQL()
    Query_GravaOrcamento.Free()
-End Sub
-
-'Procedimento responsável por buscar informações da tabela de tipo de operação de saída
-'para serem salvas posteriormente com os itens do gestor de serviços
-Sub BuscaInformacoesTipoOperacaoSaida()
-   Dim Query_BuscaInformacoesTipoOperacaoSaida As SQL.Command = New SQL.Command
-   Query_BuscaInformacoesTipoOperacaoSaida.CommandText = +_
-        "SELECT CodLocalArmazenagem,                         " +_
-        "       TOS.CodTes AS CodTes,                        " +_
-	     "       Tes.CodNaturezaOperacao AS CFOP,             " +_
-	     "       PrecoUtilizado,                              " +_
-	     "       CodTipoMovimentoEstoque                      " +_
-        "  FROM TipoOperacaoSaida AS TOS                     " +_
-        " INNER JOIN Tes ON (Tes.CodTes = TOS.CodTes)        " +_
-        " WHERE CodTipoOperacaoSaida = :CodTipoOperacaoSaida "
-
-   Query_BuscaInformacoesTipoOperacaoSaida.Param("CodTipoOperacaoSaida").AsInteger = vCodTipoOperacaoSaida
-   Query_BuscaInformacoesTipoOperacaoSaida.Open
-
-   vCodLocalArmazenagem = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodLocalArmazenagem").AsInteger
-   vCodTES = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodTes").AsInteger
-   vCFOP = Query_BuscaInformacoesTipoOperacaoSaida.Field("CFOP").AsString
-   vPrecoUtilizado = Query_BuscaInformacoesTipoOperacaoSaida.Field("PrecoUtilizado").AsString
-   vCodTipoMovimentoEstoque = Query_BuscaInformacoesTipoOperacaoSaida.Field("CodTipoMovimentoEstoque").AsInteger
-
-   Query_BuscaInformacoesTipoOperacaoSaida.Free
 End Sub
 
 'Procedimento responsável por gravar os itens do orçamento lançados no banco de dados
@@ -1142,7 +1150,7 @@ Sub GravaItemOrcamento()
           Query_GravaItemOrcamento.Param("PercentualComissao").AsFloat = 0
           Query_GravaItemOrcamento.Param("PercentualComissaoPagoBaixa").AsFloat = 0
           Query_GravaItemOrcamento.Param("Garantia").AsString = "N"
-          Query_GravaItemOrcamento.Param("NomeProduto").AsString = Grade.Cells[Col_PrecoUnitario, Contador]
+          Query_GravaItemOrcamento.Param("NomeProduto").AsString = Grade.Cells[Col_Descricao, Contador]
           Query_GravaItemOrcamento.Param("ValorAcrescimo").AsFloat = 0
           Query_GravaItemOrcamento.Param("ValorDescontoDigitadoProduto").AsFloat = 0
           Query_GravaItemOrcamento.Param("ValorAcrescimoDigitadoProduto").AsFloat = 0
@@ -1185,6 +1193,7 @@ Sub GravaItemOrcamento()
           Contador = Contador + 1
     End While
     Query_GravaItemOrcamento.Free()
+
 End Sub
 End Namespace</Codigo>
       <Linguagem>Basic</Linguagem>
