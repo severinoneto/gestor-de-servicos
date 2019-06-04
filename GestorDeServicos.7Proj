@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Projeto_Data7 xmlns="http://www.se7esistemas.com.br/Data7DevStudio" Versão="1.0">
   <Nome>Principal</Nome>
-  <Data>04/06/2019 11:08:05</Data>
+  <Data>04/06/2019 13:31:14</Data>
   <Codigo>Dim Eventos As TEventos = New TEventos()
 Dim vLinhaEdicao              As Integer
 Dim vCodEmpresa               As Integer = Data7.CodEmpresa()
@@ -33,7 +33,7 @@ Eventos.Free()
 FormularioPrincipal.Finalizar()</Codigo>
   <Aberto>true</Aberto>
   <OrdemAbertura>0</OrdemAbertura>
-  <ItemAberto>3</ItemAberto>
+  <ItemAberto>2</ItemAberto>
   <Linguagem>Basic</Linguagem>
   <Engine>PaxCompiler</Engine>
   <Modulos>
@@ -1401,10 +1401,7 @@ Sub BotaoGravaTudo(Sender As TObject)
        SQL.Connection.Rollback()
        Forms.MessageBox.Show(ex._GetMessage())
     End Try
-End Sub
-
-Sub OnClickOkFormularioPrincipal(Sender As TObject)
-   FormularioPrincipal.Finalizar()
+    TelaPrincipal.Close()
 End Sub
 
 End Class</Codigo>
