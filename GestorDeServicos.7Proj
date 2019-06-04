@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Projeto_Data7 xmlns="http://www.se7esistemas.com.br/Data7DevStudio" Versão="1.0">
   <Nome>Principal</Nome>
-  <Data>04/06/2019 09:44:53</Data>
+  <Data>04/06/2019 11:08:05</Data>
   <Codigo>Dim Eventos As TEventos = New TEventos()
 Dim vLinhaEdicao              As Integer
 Dim vCodEmpresa               As Integer = Data7.CodEmpresa()
@@ -33,7 +33,7 @@ Eventos.Free()
 FormularioPrincipal.Finalizar()</Codigo>
   <Aberto>true</Aberto>
   <OrdemAbertura>0</OrdemAbertura>
-  <ItemAberto>1</ItemAberto>
+  <ItemAberto>3</ItemAberto>
   <Linguagem>Basic</Linguagem>
   <Engine>PaxCompiler</Engine>
   <Modulos>
@@ -690,12 +690,16 @@ End Function
 Sub VerificaCamposObrigatoriosParaSalvarRegistrosNoBanco()
     If LabelValorTotalMarcado.Text = "0,00" Then
        Forms.MessageBox.Show("É obrigatório informar ao menos um item para salvar o orçamento.")
+       Exit Sub
     Elseif EditCliente.Text = "" Then
        Forms.MessageBox.Show("É obrigatório informar um cliente para salvar o orçamento.")
+       Exit Sub
     Elseif EditCondicaoPagamento.Text = "" Then
        Forms.MessageBox.Show("É obrigatório informar uma condição de pagamento para salvar o orçamento.")
+       Exit Sub
     Elseif EditVendedor.Text = "" Then
        Forms.MessageBox.Show("É obrigatório informar um vendedor para salvar o orçamento.")
+       Exit Sub
     End If
 End Sub
 
@@ -864,8 +868,16 @@ Sub GravaOrcamento()
    Query_GravaOrcamento.Param("CodEmpresa").AsInteger = vCodEmpresa
    Query_GravaOrcamento.Param("CodFilial").AsInteger = vCodFilial
    Query_GravaOrcamento.Param("CodOrcamento").AsInteger = vProximoCodigo
-   Query_GravaOrcamento.Param("CodVendedor").AsInteger = CInt(EditVendedor.Text)
-   Query_GravaOrcamento.Param("CodCliente").AsInteger = CInt(EditCliente.Text)
+   If EditVendedor.Text &lt;&gt; "" Then
+      Query_GravaOrcamento.Param("CodVendedor").AsInteger = CInt(EditVendedor.Text)
+   Else
+      Exit Sub
+   End If
+   If EditCliente.Text &lt;&gt; "" Then
+      Query_GravaOrcamento.Param("CodCliente").AsInteger = CInt(EditCliente.Text)
+   Else
+      Exit Sub
+   End If
    Query_GravaOrcamento.Param("DataDigitacao").AsString = DateUtils.ToStringFormat("DD/MM/YYYY", DateTime())
    Query_GravaOrcamento.Param("VendaEfetuada").AsString = "N"
    Query_GravaOrcamento.Param("PesoLiquido").AsFloat = 0
@@ -1252,8 +1264,18 @@ End Sub
 
 'Procedimento responsável pela ação do botão "Selecionar"
 Sub OnClickBotaoSelecionar(Sender As CommandButton)
+    Dim Contador As Integer = 1
+
     VerificaParametrosObrigatorios()
     Processos.CarregaProduto()
+
+    While Contador &lt; Grade.RowCount
+          AtualizaOrdemGrade(Grade, Col_Item)
+          Grade.Cells[Col_Selecao, Contador] = vCaractereMarcado
+          Contador = Contador + 1
+    End While
+
+    Processos.ContadorItensMarcados()
     ContagemItensLancados()
     Processos.SomaItens()
     Processos.SomaItensMarcados()
